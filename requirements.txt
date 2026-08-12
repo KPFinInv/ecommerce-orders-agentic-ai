@@ -1,0 +1,6 @@
+streamlit==1.61.1
+langgraph==1.2.11
+langchain-openai==1.4.3
+pandas==2.3.2
+matplotlib==3.10.5
+python-dotenv==1.1.1

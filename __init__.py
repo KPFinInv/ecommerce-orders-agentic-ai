@@ -1,0 +1,2 @@
+"""Kartify teaching application package."""
+
