@@ -1,0 +1,63 @@
+digraph KartifyAgent {
+  graph [
+    rankdir=TB,
+    bgcolor="transparent",
+    pad=0.25,
+    nodesep=0.32,
+    ranksep=0.55,
+    fontname="DejaVu Sans"
+  ];
+  node [
+    shape=box,
+    style="rounded,filled",
+    fontname="DejaVu Sans",
+    fontsize=13,
+    color="#176B87",
+    fillcolor="#F4F8FA",
+    fontcolor="#102433",
+    penwidth=1.5,
+    margin="0.18,0.11"
+  ];
+  edge [
+    fontname="DejaVu Sans",
+    fontsize=10,
+    color="#5F7482",
+    fontcolor="#435765",
+    arrowsize=0.75,
+    penwidth=1.4
+  ];
+
+  channel [label="Streamlit / Notebook\nconversation channel", fillcolor="#E9F7FA"];
+  session [label="Demo identity + session memory\ncustomer · pending task · active order · active product", fillcolor="#FFF1E8", color="#E87950"];
+  guardrail [label="1  Input guardrail\nunsafe instructions · empty input"];
+  understand [label="2  Understanding\nintent · explicit entities"];
+  context [label="3  Context resolver\nclarification continuation · latest order · pronouns"];
+  authorize [label="4  Authorization gate\ncustomer owns order?"];
+  tools [label="5  Governed tool router\nallowlisted read operations"];
+  orders [label="Orders service\nread-only SQLite", shape=cylinder, fillcolor="#EDF5FF", color="#3B73B9"];
+  products [label="Product evidence\nitems · warranty · return window", shape=cylinder, fillcolor="#EDF5FF", color="#3B73B9"];
+  policy [label="6  Policy engine\nreturns · cancellation boundary"];
+  respond [label="7  Grounded response\nanswer · clarify · deny · handoff"];
+  critic [label="8  Response critic\ngrounding · access · policy · trace", fillcolor="#EAF7F0", color="#2D966B"];
+  feedback [label="Customer feedback\n1–5 rating · resolved? · comment", fillcolor="#FFF7D9", color="#BA8A18"];
+  analytics [label="Quality analytics\nCSAT · resolution · task success · latency", shape=cylinder, fillcolor="#FFF7D9", color="#BA8A18"];
+
+  channel -> session -> guardrail;
+  guardrail -> understand [label="safe"];
+  guardrail -> respond [label="blocked"];
+  understand -> context;
+  context -> respond [label="missing slot"];
+  context -> authorize [label="context ready"];
+  authorize -> tools [label="allow / safe skip"];
+  tools -> orders;
+  tools -> products;
+  orders -> policy;
+  products -> policy;
+  policy -> respond;
+  respond -> critic;
+  critic -> session [label="update memory"];
+  critic -> channel [label="answer + trace"];
+  channel -> feedback [label="end conversation"];
+  feedback -> analytics;
+  critic -> analytics [label="automated signals"];
+}

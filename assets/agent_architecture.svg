@@ -18,15 +18,15 @@
 <!-- session -->
 <g id="node2" class="node">
 <title>session</title>
-<path fill="#fff1e8" stroke="#e87950" stroke-width="1.5" d="M355.85,-1063.76C355.85,-1063.76 94.15,-1063.76 94.15,-1063.76 88.15,-1063.76 82.15,-1057.76 82.15,-1051.76 82.15,-1051.76 82.15,-1028.72 82.15,-1028.72 82.15,-1022.72 88.15,-1016.72 94.15,-1016.72 94.15,-1016.72 355.85,-1016.72 355.85,-1016.72 361.85,-1016.72 367.85,-1022.72 367.85,-1028.72 367.85,-1028.72 367.85,-1051.76 367.85,-1051.76 367.85,-1057.76 361.85,-1063.76 355.85,-1063.76"/>
-<text xml:space="preserve" text-anchor="middle" x="225" y="-1044.14" font-family="DejaVu Sans" font-size="13.00" fill="#102433">Demo identity + session memory</text>
-<text xml:space="preserve" text-anchor="middle" x="225" y="-1028.54" font-family="DejaVu Sans" font-size="13.00" fill="#102433">customer scope · active order · history</text>
+<path fill="#fff1e8" stroke="#e87950" stroke-width="1.5" d="M426.77,-1063.76C426.77,-1063.76 57.23,-1063.76 57.23,-1063.76 51.23,-1063.76 45.23,-1057.76 45.23,-1051.76 45.23,-1051.76 45.23,-1028.72 45.23,-1028.72 45.23,-1022.72 51.23,-1016.72 57.23,-1016.72 57.23,-1016.72 426.77,-1016.72 426.77,-1016.72 432.77,-1016.72 438.77,-1022.72 438.77,-1028.72 438.77,-1028.72 438.77,-1051.76 438.77,-1051.76 438.77,-1057.76 432.77,-1063.76 426.77,-1063.76"/>
+<text xml:space="preserve" text-anchor="middle" x="242" y="-1044.14" font-family="DejaVu Sans" font-size="13.00" fill="#102433">Demo identity + session memory</text>
+<text xml:space="preserve" text-anchor="middle" x="242" y="-1028.54" font-family="DejaVu Sans" font-size="13.00" fill="#102433">customer · pending task · active order · active product</text>
 </g>
 <!-- channel&#45;&gt;session -->
 <g id="edge1" class="edge">
 <title>channel&#45;&gt;session</title>
-<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M549.94,-1118.53C486.95,-1103.54 399.88,-1082.83 331.72,-1066.62"/>
-<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="332.63,-1064.14 324.72,-1064.96 331.41,-1069.25 332.63,-1064.14"/>
+<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M549.6,-1117.58C489.75,-1102.73 408.72,-1082.62 344.85,-1066.77"/>
+<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="345.52,-1064.23 337.61,-1064.97 344.26,-1069.32 345.52,-1064.23"/>
 </g>
 <!-- feedback -->
 <g id="node13" class="node">
@@ -45,29 +45,29 @@
 <!-- guardrail -->
 <g id="node3" class="node">
 <title>guardrail</title>
-<path fill="#f4f8fa" stroke="#176b87" stroke-width="1.5" d="M335.89,-929.68C335.89,-929.68 114.11,-929.68 114.11,-929.68 108.11,-929.68 102.11,-923.68 102.11,-917.68 102.11,-917.68 102.11,-894.64 102.11,-894.64 102.11,-888.64 108.11,-882.64 114.11,-882.64 114.11,-882.64 335.89,-882.64 335.89,-882.64 341.89,-882.64 347.89,-888.64 347.89,-894.64 347.89,-894.64 347.89,-917.68 347.89,-917.68 347.89,-923.68 341.89,-929.68 335.89,-929.68"/>
-<text xml:space="preserve" text-anchor="middle" x="225" y="-910.06" font-family="DejaVu Sans" font-size="13.00" fill="#102433">1 &#160;Input guardrail</text>
-<text xml:space="preserve" text-anchor="middle" x="225" y="-894.46" font-family="DejaVu Sans" font-size="13.00" fill="#102433">unsafe instructions · empty input</text>
+<path fill="#f4f8fa" stroke="#176b87" stroke-width="1.5" d="M352.89,-929.68C352.89,-929.68 131.11,-929.68 131.11,-929.68 125.11,-929.68 119.11,-923.68 119.11,-917.68 119.11,-917.68 119.11,-894.64 119.11,-894.64 119.11,-888.64 125.11,-882.64 131.11,-882.64 131.11,-882.64 352.89,-882.64 352.89,-882.64 358.89,-882.64 364.89,-888.64 364.89,-894.64 364.89,-894.64 364.89,-917.68 364.89,-917.68 364.89,-923.68 358.89,-929.68 352.89,-929.68"/>
+<text xml:space="preserve" text-anchor="middle" x="242" y="-910.06" font-family="DejaVu Sans" font-size="13.00" fill="#102433">1 &#160;Input guardrail</text>
+<text xml:space="preserve" text-anchor="middle" x="242" y="-894.46" font-family="DejaVu Sans" font-size="13.00" fill="#102433">unsafe instructions · empty input</text>
 </g>
 <!-- session&#45;&gt;guardrail -->
 <g id="edge2" class="edge">
 <title>session&#45;&gt;guardrail</title>
-<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M225,-1016.23C225,-995.06 225,-963.42 225,-939.67"/>
-<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="227.63,-939.97 225,-932.47 222.38,-939.97 227.63,-939.97"/>
+<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M242,-1016.23C242,-995.06 242,-963.42 242,-939.67"/>
+<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="244.63,-939.97 242,-932.47 239.38,-939.97 244.63,-939.97"/>
 </g>
 <!-- understand -->
 <g id="node4" class="node">
 <title>understand</title>
-<path fill="#f4f8fa" stroke="#176b87" stroke-width="1.5" d="M353.16,-830.64C353.16,-830.64 196.84,-830.64 196.84,-830.64 190.84,-830.64 184.84,-824.64 184.84,-818.64 184.84,-818.64 184.84,-795.6 184.84,-795.6 184.84,-789.6 190.84,-783.6 196.84,-783.6 196.84,-783.6 353.16,-783.6 353.16,-783.6 359.16,-783.6 365.16,-789.6 365.16,-795.6 365.16,-795.6 365.16,-818.64 365.16,-818.64 365.16,-824.64 359.16,-830.64 353.16,-830.64"/>
-<text xml:space="preserve" text-anchor="middle" x="275" y="-811.02" font-family="DejaVu Sans" font-size="13.00" fill="#102433">2 &#160;Understanding</text>
-<text xml:space="preserve" text-anchor="middle" x="275" y="-795.42" font-family="DejaVu Sans" font-size="13.00" fill="#102433">intent · explicit entities</text>
+<path fill="#f4f8fa" stroke="#176b87" stroke-width="1.5" d="M373.16,-830.64C373.16,-830.64 216.84,-830.64 216.84,-830.64 210.84,-830.64 204.84,-824.64 204.84,-818.64 204.84,-818.64 204.84,-795.6 204.84,-795.6 204.84,-789.6 210.84,-783.6 216.84,-783.6 216.84,-783.6 373.16,-783.6 373.16,-783.6 379.16,-783.6 385.16,-789.6 385.16,-795.6 385.16,-795.6 385.16,-818.64 385.16,-818.64 385.16,-824.64 379.16,-830.64 373.16,-830.64"/>
+<text xml:space="preserve" text-anchor="middle" x="295" y="-811.02" font-family="DejaVu Sans" font-size="13.00" fill="#102433">2 &#160;Understanding</text>
+<text xml:space="preserve" text-anchor="middle" x="295" y="-795.42" font-family="DejaVu Sans" font-size="13.00" fill="#102433">intent · explicit entities</text>
 </g>
 <!-- guardrail&#45;&gt;understand -->
 <g id="edge3" class="edge">
 <title>guardrail&#45;&gt;understand</title>
-<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M236.85,-882.16C243.4,-869.45 251.64,-853.46 258.78,-839.6"/>
-<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="260.99,-841.04 262.09,-833.17 256.32,-838.64 260.99,-841.04"/>
-<text xml:space="preserve" text-anchor="middle" x="263.5" y="-853.64" font-family="DejaVu Sans" font-size="10.00" fill="#435765">safe</text>
+<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M254.56,-882.16C261.51,-869.45 270.24,-853.46 277.81,-839.6"/>
+<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="280.04,-840.99 281.33,-833.15 275.43,-838.47 280.04,-840.99"/>
+<text xml:space="preserve" text-anchor="middle" x="282.18" y="-853.64" font-family="DejaVu Sans" font-size="10.00" fill="#435765">safe</text>
 </g>
 <!-- respond -->
 <g id="node11" class="node">
@@ -79,57 +79,57 @@
 <!-- guardrail&#45;&gt;respond -->
 <g id="edge4" class="edge">
 <title>guardrail&#45;&gt;respond</title>
-<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M166.5,-881.97C137.25,-866.16 108,-841.9 108,-808.12 108,-808.12 108,-808.12 108,-315.28 108,-269.73 222.94,-248.09 319.94,-237.94"/>
+<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M170.29,-882.03C138.43,-866.84 108,-843.16 108,-808.12 108,-808.12 108,-808.12 108,-315.28 108,-269.73 222.94,-248.09 319.94,-237.94"/>
 <polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="319.96,-240.58 327.16,-237.21 319.43,-235.35 319.96,-240.58"/>
 <text xml:space="preserve" text-anchor="middle" x="127.52" y="-567.52" font-family="DejaVu Sans" font-size="10.00" fill="#435765">blocked</text>
 </g>
 <!-- context -->
 <g id="node5" class="node">
 <title>context</title>
-<path fill="#f4f8fa" stroke="#176b87" stroke-width="1.5" d="M473.71,-742.6C473.71,-742.6 226.29,-742.6 226.29,-742.6 220.29,-742.6 214.29,-736.6 214.29,-730.6 214.29,-730.6 214.29,-707.56 214.29,-707.56 214.29,-701.56 220.29,-695.56 226.29,-695.56 226.29,-695.56 473.71,-695.56 473.71,-695.56 479.71,-695.56 485.71,-701.56 485.71,-707.56 485.71,-707.56 485.71,-730.6 485.71,-730.6 485.71,-736.6 479.71,-742.6 473.71,-742.6"/>
-<text xml:space="preserve" text-anchor="middle" x="350" y="-722.98" font-family="DejaVu Sans" font-size="13.00" fill="#102433">3 &#160;Context resolver</text>
-<text xml:space="preserve" text-anchor="middle" x="350" y="-707.38" font-family="DejaVu Sans" font-size="13.00" fill="#102433">latest order · pronouns · clarification</text>
+<path fill="#f4f8fa" stroke="#176b87" stroke-width="1.5" d="M575.48,-742.6C575.48,-742.6 242.52,-742.6 242.52,-742.6 236.52,-742.6 230.52,-736.6 230.52,-730.6 230.52,-730.6 230.52,-707.56 230.52,-707.56 230.52,-701.56 236.52,-695.56 242.52,-695.56 242.52,-695.56 575.48,-695.56 575.48,-695.56 581.48,-695.56 587.48,-701.56 587.48,-707.56 587.48,-707.56 587.48,-730.6 587.48,-730.6 587.48,-736.6 581.48,-742.6 575.48,-742.6"/>
+<text xml:space="preserve" text-anchor="middle" x="409" y="-722.98" font-family="DejaVu Sans" font-size="13.00" fill="#102433">3 &#160;Context resolver</text>
+<text xml:space="preserve" text-anchor="middle" x="409" y="-707.38" font-family="DejaVu Sans" font-size="13.00" fill="#102433">clarification continuation · latest order · pronouns</text>
 </g>
 <!-- understand&#45;&gt;context -->
 <g id="edge5" class="edge">
 <title>understand&#45;&gt;context</title>
-<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M295.1,-783.06C303.84,-773.03 314.21,-761.14 323.56,-750.41"/>
-<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="325.5,-752.18 328.45,-744.8 321.55,-748.73 325.5,-752.18"/>
+<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M325.55,-783.06C339.48,-772.55 356.11,-759.99 370.85,-748.87"/>
+<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="372.27,-751.09 376.67,-744.48 369.11,-746.9 372.27,-751.09"/>
 </g>
 <!-- authorize -->
 <g id="node6" class="node">
 <title>authorize</title>
-<path fill="#f4f8fa" stroke="#176b87" stroke-width="1.5" d="M423.4,-643.56C423.4,-643.56 276.6,-643.56 276.6,-643.56 270.6,-643.56 264.6,-637.56 264.6,-631.56 264.6,-631.56 264.6,-608.52 264.6,-608.52 264.6,-602.52 270.6,-596.52 276.6,-596.52 276.6,-596.52 423.4,-596.52 423.4,-596.52 429.4,-596.52 435.4,-602.52 435.4,-608.52 435.4,-608.52 435.4,-631.56 435.4,-631.56 435.4,-637.56 429.4,-643.56 423.4,-643.56"/>
-<text xml:space="preserve" text-anchor="middle" x="350" y="-623.94" font-family="DejaVu Sans" font-size="13.00" fill="#102433">4 &#160;Authorization gate</text>
-<text xml:space="preserve" text-anchor="middle" x="350" y="-608.34" font-family="DejaVu Sans" font-size="13.00" fill="#102433">customer owns order?</text>
+<path fill="#f4f8fa" stroke="#176b87" stroke-width="1.5" d="M482.4,-643.56C482.4,-643.56 335.6,-643.56 335.6,-643.56 329.6,-643.56 323.6,-637.56 323.6,-631.56 323.6,-631.56 323.6,-608.52 323.6,-608.52 323.6,-602.52 329.6,-596.52 335.6,-596.52 335.6,-596.52 482.4,-596.52 482.4,-596.52 488.4,-596.52 494.4,-602.52 494.4,-608.52 494.4,-608.52 494.4,-631.56 494.4,-631.56 494.4,-637.56 488.4,-643.56 482.4,-643.56"/>
+<text xml:space="preserve" text-anchor="middle" x="409" y="-623.94" font-family="DejaVu Sans" font-size="13.00" fill="#102433">4 &#160;Authorization gate</text>
+<text xml:space="preserve" text-anchor="middle" x="409" y="-608.34" font-family="DejaVu Sans" font-size="13.00" fill="#102433">customer owns order?</text>
 </g>
 <!-- context&#45;&gt;authorize -->
 <g id="edge7" class="edge">
 <title>context&#45;&gt;authorize</title>
-<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M350,-695.08C350,-682.73 350,-667.28 350,-653.7"/>
-<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="352.63,-653.83 350,-646.33 347.38,-653.83 352.63,-653.83"/>
-<text xml:space="preserve" text-anchor="middle" x="384.85" y="-666.56" font-family="DejaVu Sans" font-size="10.00" fill="#435765">context ready</text>
+<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M409,-695.08C409,-682.73 409,-667.28 409,-653.7"/>
+<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="411.63,-653.83 409,-646.33 406.38,-653.83 411.63,-653.83"/>
+<text xml:space="preserve" text-anchor="middle" x="443.85" y="-666.56" font-family="DejaVu Sans" font-size="10.00" fill="#435765">context ready</text>
 </g>
 <!-- context&#45;&gt;respond -->
 <g id="edge6" class="edge">
 <title>context&#45;&gt;respond</title>
-<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M398.62,-694.81C407.91,-689.21 417.17,-682.74 425,-675.56 476.5,-628.34 510.98,-627.99 559,-445.48 576.29,-379.79 587.85,-351.07 553,-292.76 544.35,-278.28 530.98,-266.59 516.78,-257.37"/>
+<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M457.62,-694.81C466.91,-689.21 476.17,-682.74 484,-675.56 496.72,-663.9 498.78,-659.23 506,-643.56 544.14,-560.79 547.12,-535.83 559,-445.48 567.85,-378.13 587.85,-351.07 553,-292.76 544.35,-278.28 530.98,-266.59 516.78,-257.37"/>
 <polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="518.4,-255.29 510.63,-253.61 515.66,-259.77 518.4,-255.29"/>
-<text xml:space="preserve" text-anchor="middle" x="583.37" y="-468.48" font-family="DejaVu Sans" font-size="10.00" fill="#435765">missing slot</text>
+<text xml:space="preserve" text-anchor="middle" x="586.07" y="-468.48" font-family="DejaVu Sans" font-size="10.00" fill="#435765">missing slot</text>
 </g>
 <!-- tools -->
 <g id="node7" class="node">
 <title>tools</title>
-<path fill="#f4f8fa" stroke="#176b87" stroke-width="1.5" d="M439.03,-544.52C439.03,-544.52 260.97,-544.52 260.97,-544.52 254.97,-544.52 248.97,-538.52 248.97,-532.52 248.97,-532.52 248.97,-509.48 248.97,-509.48 248.97,-503.48 254.97,-497.48 260.97,-497.48 260.97,-497.48 439.03,-497.48 439.03,-497.48 445.03,-497.48 451.03,-503.48 451.03,-509.48 451.03,-509.48 451.03,-532.52 451.03,-532.52 451.03,-538.52 445.03,-544.52 439.03,-544.52"/>
-<text xml:space="preserve" text-anchor="middle" x="350" y="-524.9" font-family="DejaVu Sans" font-size="13.00" fill="#102433">5 &#160;Governed tool router</text>
-<text xml:space="preserve" text-anchor="middle" x="350" y="-509.3" font-family="DejaVu Sans" font-size="13.00" fill="#102433">allowlisted read operations</text>
+<path fill="#f4f8fa" stroke="#176b87" stroke-width="1.5" d="M498.03,-544.52C498.03,-544.52 319.97,-544.52 319.97,-544.52 313.97,-544.52 307.97,-538.52 307.97,-532.52 307.97,-532.52 307.97,-509.48 307.97,-509.48 307.97,-503.48 313.97,-497.48 319.97,-497.48 319.97,-497.48 498.03,-497.48 498.03,-497.48 504.03,-497.48 510.03,-503.48 510.03,-509.48 510.03,-509.48 510.03,-532.52 510.03,-532.52 510.03,-538.52 504.03,-544.52 498.03,-544.52"/>
+<text xml:space="preserve" text-anchor="middle" x="409" y="-524.9" font-family="DejaVu Sans" font-size="13.00" fill="#102433">5 &#160;Governed tool router</text>
+<text xml:space="preserve" text-anchor="middle" x="409" y="-509.3" font-family="DejaVu Sans" font-size="13.00" fill="#102433">allowlisted read operations</text>
 </g>
 <!-- authorize&#45;&gt;tools -->
 <g id="edge8" class="edge">
 <title>authorize&#45;&gt;tools</title>
-<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M350,-596.04C350,-583.69 350,-568.24 350,-554.66"/>
-<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="352.63,-554.79 350,-547.29 347.38,-554.79 352.63,-554.79"/>
-<text xml:space="preserve" text-anchor="middle" x="390.01" y="-567.52" font-family="DejaVu Sans" font-size="10.00" fill="#435765">allow / safe skip</text>
+<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M409,-596.04C409,-583.69 409,-568.24 409,-554.66"/>
+<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="411.63,-554.79 409,-547.29 406.38,-554.79 411.63,-554.79"/>
+<text xml:space="preserve" text-anchor="middle" x="449.01" y="-567.52" font-family="DejaVu Sans" font-size="10.00" fill="#435765">allow / safe skip</text>
 </g>
 <!-- orders -->
 <g id="node8" class="node">
@@ -142,8 +142,8 @@
 <!-- tools&#45;&gt;orders -->
 <g id="edge9" class="edge">
 <title>tools&#45;&gt;orders</title>
-<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M319.28,-496.77C301.72,-483.49 279.29,-466.53 259.32,-451.43"/>
-<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="261.06,-449.46 253.49,-447.03 257.89,-453.65 261.06,-449.46"/>
+<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M365.33,-496.77C338.87,-482.69 304.62,-464.48 275.02,-448.73"/>
+<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="276.53,-446.56 268.68,-445.35 274.07,-451.19 276.53,-446.56"/>
 </g>
 <!-- products -->
 <g id="node9" class="node">
@@ -156,8 +156,8 @@
 <!-- tools&#45;&gt;products -->
 <g id="edge10" class="edge">
 <title>tools&#45;&gt;products</title>
-<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M366.24,-496.77C375,-484.24 386.05,-468.43 396.14,-454"/>
-<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="398.26,-455.54 400.41,-447.89 393.96,-452.53 398.26,-455.54"/>
+<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M412.29,-496.77C414,-484.7 416.14,-469.59 418.12,-455.6"/>
+<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="420.71,-456.04 419.17,-448.25 415.52,-455.31 420.71,-456.04"/>
 </g>
 <!-- policy -->
 <g id="node10" class="node">
@@ -187,28 +187,28 @@
 <!-- critic -->
 <g id="node12" class="node">
 <title>critic</title>
-<path fill="#eaf7f0" stroke="#2d966b" stroke-width="1.5" d="M645.76,-163.72C645.76,-163.72 412.24,-163.72 412.24,-163.72 406.24,-163.72 400.24,-157.72 400.24,-151.72 400.24,-151.72 400.24,-128.68 400.24,-128.68 400.24,-122.68 406.24,-116.68 412.24,-116.68 412.24,-116.68 645.76,-116.68 645.76,-116.68 651.76,-116.68 657.76,-122.68 657.76,-128.68 657.76,-128.68 657.76,-151.72 657.76,-151.72 657.76,-157.72 651.76,-163.72 645.76,-163.72"/>
-<text xml:space="preserve" text-anchor="middle" x="529" y="-144.1" font-family="DejaVu Sans" font-size="13.00" fill="#102433">8 &#160;Response critic</text>
-<text xml:space="preserve" text-anchor="middle" x="529" y="-128.5" font-family="DejaVu Sans" font-size="13.00" fill="#102433">grounding · access · policy · trace</text>
+<path fill="#eaf7f0" stroke="#2d966b" stroke-width="1.5" d="M687.76,-163.72C687.76,-163.72 454.24,-163.72 454.24,-163.72 448.24,-163.72 442.24,-157.72 442.24,-151.72 442.24,-151.72 442.24,-128.68 442.24,-128.68 442.24,-122.68 448.24,-116.68 454.24,-116.68 454.24,-116.68 687.76,-116.68 687.76,-116.68 693.76,-116.68 699.76,-122.68 699.76,-128.68 699.76,-128.68 699.76,-151.72 699.76,-151.72 699.76,-157.72 693.76,-163.72 687.76,-163.72"/>
+<text xml:space="preserve" text-anchor="middle" x="571" y="-144.1" font-family="DejaVu Sans" font-size="13.00" fill="#102433">8 &#160;Response critic</text>
+<text xml:space="preserve" text-anchor="middle" x="571" y="-128.5" font-family="DejaVu Sans" font-size="13.00" fill="#102433">grounding · access · policy · trace</text>
 </g>
 <!-- respond&#45;&gt;critic -->
 <g id="edge14" class="edge">
 <title>respond&#45;&gt;critic</title>
-<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M472.63,-204.18C481.7,-194.06 492.46,-182.03 502.13,-171.22"/>
-<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="503.85,-173.24 506.9,-165.9 499.94,-169.74 503.85,-173.24"/>
+<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M483.89,-204.18C498.56,-193.57 516.11,-180.88 531.6,-169.68"/>
+<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="532.77,-172.08 537.31,-165.56 529.69,-167.83 532.77,-172.08"/>
 </g>
 <!-- critic&#45;&gt;channel -->
 <g id="edge16" class="edge">
 <title>critic&#45;&gt;channel</title>
-<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M585.87,-164.44C610.15,-178.46 633,-199.12 633,-227.24 633,-1041.24 633,-1041.24 633,-1041.24 633,-1062.66 633,-1086.74 633,-1105.56"/>
+<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M599.82,-164.39C616.01,-180.15 633,-202.57 633,-227.24 633,-1041.24 633,-1041.24 633,-1041.24 633,-1062.66 633,-1086.74 633,-1105.56"/>
 <polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="630.38,-1105.52 633,-1113.02 635.63,-1105.52 630.38,-1105.52"/>
 <text xml:space="preserve" text-anchor="middle" x="671.33" y="-617.04" font-family="DejaVu Sans" font-size="10.00" fill="#435765">answer + trace</text>
 </g>
 <!-- critic&#45;&gt;session -->
 <g id="edge15" class="edge">
 <title>critic&#45;&gt;session</title>
-<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M399.59,-149.67C242.98,-161.71 0,-186.88 0,-227.24 0,-907.16 0,-907.16 0,-907.16 0,-961.44 49.3,-993.84 101.74,-1012.96"/>
-<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="100.58,-1015.33 108.52,-1015.33 102.31,-1010.37 100.58,-1015.33"/>
+<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M441.79,-148.03C273.35,-158.7 0,-182.85 0,-227.24 0,-907.16 0,-907.16 0,-907.16 0,-961.91 48.31,-994.1 101.76,-1012.96"/>
+<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="100.78,-1015.4 108.72,-1015.31 102.46,-1010.43 100.78,-1015.4"/>
 <text xml:space="preserve" text-anchor="middle" x="40.1" y="-567.52" font-family="DejaVu Sans" font-size="10.00" fill="#435765">update memory</text>
 </g>
 <!-- analytics -->
@@ -222,9 +222,9 @@
 <!-- critic&#45;&gt;analytics -->
 <g id="edge19" class="edge">
 <title>critic&#45;&gt;analytics</title>
-<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M561.92,-115.97C580.66,-102.74 604.58,-85.86 625.91,-70.8"/>
-<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="627.3,-73.04 631.91,-66.57 624.27,-68.75 627.3,-73.04"/>
-<text xml:space="preserve" text-anchor="middle" x="650.38" y="-87.68" font-family="DejaVu Sans" font-size="10.00" fill="#435765">automated signals</text>
+<path fill="none" stroke="#5f7482" stroke-width="1.4" d="M594.7,-115.97C607.84,-103.09 624.52,-86.74 639.56,-72"/>
+<polygon fill="#5f7482" stroke="#5f7482" stroke-width="1.4" points="641.31,-73.96 644.83,-66.83 637.64,-70.21 641.31,-73.96"/>
+<text xml:space="preserve" text-anchor="middle" x="671.38" y="-87.68" font-family="DejaVu Sans" font-size="10.00" fill="#435765">automated signals</text>
 </g>
 <!-- feedback&#45;&gt;analytics -->
 <g id="edge18" class="edge">
