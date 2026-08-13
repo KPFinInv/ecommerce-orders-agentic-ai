@@ -79,6 +79,16 @@ elif (
     new_conversation(selected_customer, selected_mode)
 
 session: SupportSession = st.session_state.agent_session
+required_session_fields = (
+    "pending_intent",
+    "pending_candidate_order_ids",
+    "active_product_name",
+)
+if not all(hasattr(session, field) for field in required_session_fields):
+    # Streamlit can preserve an object created by an earlier deployed class definition.
+    # Rebuild the demo session when its state schema changes so existing browser tabs recover.
+    new_conversation(selected_customer, selected_mode)
+    session = st.session_state.agent_session
 
 st.title("📦 Kartify Agentic Order Assistant")
 st.caption(
