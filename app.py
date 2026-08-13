@@ -92,6 +92,11 @@ for column, (label, value) in zip(metrics[:4], summary.items()):
     column.metric(label.replace("_", " ").title(), value)
 metrics[4].metric("Conversation turns", session.turns)
 metrics[5].metric("Active order", session.active_order_id or "Not selected")
+if session.pending_intent:
+    st.warning(
+        "Clarification checkpoint retained: select an order and the agent will continue "
+        f"the original **{session.pending_intent.replace('_', ' ')}** request."
+    )
 
 chat_tab, architecture_tab, quality_tab = st.tabs(
     ["💬 Conversation", "🧭 Executable architecture", "📊 Quality and feedback"]
@@ -100,7 +105,7 @@ chat_tab, architecture_tab, quality_tab = st.tabs(
 with chat_tab:
     st.info(
         f"Demo session established for **{session.customer_name}**. Try natural follow-ups; "
-        "customer and active-order context will carry forward."
+        "customer, active-order, product, and clarification context will carry forward."
     )
     prompt_columns = st.columns(4)
     sample_prompts = [

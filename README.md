@@ -2,9 +2,11 @@
 
 This is a teaching-grade, GitHub-ready case study for a 90-minute data science webinar. It demonstrates a multi-turn LangGraph support agent over a small SQLite database, an inspectable quality framework, and deployment on Streamlit Community Cloud.
 
-## What is materially different in version 2
+## What is materially different in version 2.1
 
 The customer selects a simulated identity once, then asks natural follow-up questions without repeating customer ID or order ID. The agent retains an active-order reference, resolves phrases such as “it,” asks for missing context when several orders are plausible, and verifies ownership before private data enters graph state.
+
+Version 2.1 also retains the **unfinished task behind a clarification**. If a customer asks which products are in an unspecified order, the agent lists safe candidate orders. A reply containing only `ORD1009` resumes the original product request instead of incorrectly switching to order status. The selected order and product context then remain relevant across later warranty, tracking, delivery, return, and cancellation questions.
 
 The case study also includes:
 
@@ -77,6 +79,19 @@ Select **Bob Smith, customer 2** once in the sidebar, then ask:
 3. `Can I return the blender?`
 
 This demonstrates latest-order resolution, conversation memory, product grounding, and policy handoff without repeating identifiers.
+
+### Six-turn clarification-continuation demo
+
+Select Alice Johnson, customer 1 once, then ask:
+
+1. `Can you check and tell me which products are there in my order?`
+2. `ORD1009`
+3. `What warranty does it have?`
+4. `Where is it now?`
+5. `When will it arrive?`
+6. `Can I return it?`
+
+Turn 2 continues the pending product request. Turns 3 through 6 reuse the governed active-order and product context. The customer does not need to repeat either identifier.
 
 Additional controls:
 

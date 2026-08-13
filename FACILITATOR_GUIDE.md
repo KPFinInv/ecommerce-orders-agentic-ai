@@ -12,7 +12,7 @@ Learners should leave able to explain an agent as a controlled state, routing, t
 | 6 to 16 min | Agentic foundations | Define state, nodes, routing, memory, tools, guardrails, policy, and human approval | Build a precise mental model |
 | 16 to 25 min | Data and risk | Audit customers, orders, items, and products; discuss privacy and write risk | Connect technical controls to the business process |
 | 25 to 37 min | Executable architecture | Trace safe, ambiguous, denied, and blocked paths through the graph | Read a controlled LangGraph design |
-| 37 to 54 min | Multi-turn lab | Run Bob Smith's three-turn conversation and inspect state plus trace | See identity and active-order memory working |
+| 37 to 54 min | Multi-turn lab | Run Alice's six-turn clarification journey and inspect state plus trace | See pending-task, active-order, and product memory working |
 | 54 to 66 min | Boundary experiments | Demonstrate ambiguity, cross-customer denial, cancellation handoff, and write guardrail | Understand safe non-happy paths |
 | 66 to 77 min | Data science evaluation | Run the labelled benchmark, confusion matrix, scorecard, and latency measure | Treat agent quality as an evaluation dataset |
 | 77 to 83 min | Customer feedback | Submit a rating and discuss sample-size uncertainty | Separate self-evaluation from customer outcomes |
@@ -23,7 +23,7 @@ Learners should leave able to explain an agent as a controlled state, routing, t
 
 * Use Python 3.11 or 3.12.
 * Install `requirements.txt` at least one day before the webinar.
-* Run `pytest` and confirm eight passing tests.
+* Run `pytest` and confirm nine passing tests.
 * Run every notebook cell from a fresh kernel.
 * Run `streamlit run app.py` from repository root.
 * Verify that the architecture SVG renders in the notebook and Streamlit.
@@ -35,7 +35,20 @@ Learners should leave able to explain an agent as a controlled state, routing, t
 
 ## Live demonstration sequence
 
-### 1. Multi-turn memory
+### 1. Six-turn clarification continuation
+
+Select **Alice Johnson, customer 1** once, then ask:
+
+1. `Can you check and tell me which products are there in my order?`
+2. `ORD1009`
+3. `What warranty does it have?`
+4. `Where is it now?`
+5. `When will it arrive?`
+6. `Can I return it?`
+
+Expected interpretation: turn one stores `product_help` as the unfinished task and asks only for the missing order. The bare order number in turn two completes that original product request. The graph then retains ORD1009 and Smartwatch X as typed context across warranty, tracking, delivery, and return questions. Authorization still runs on every retrieval.
+
+### 2. Latest-order memory
 
 Select **Bob Smith, customer 2** once, then ask:
 
@@ -45,25 +58,25 @@ Select **Bob Smith, customer 2** once, then ask:
 
 Expected interpretation: the graph resolves ORD1003 on turn one and retains it as the active order. The later turns change intent but not customer scope or active order. Return policy uses the matched Portable Blender record and ends in human confirmation.
 
-### 2. Ambiguity
+### 3. Ambiguity
 
 Select **Charlie Brown, customer 3**, then ask `Can I return an order?`
 
 Expected interpretation: several owned orders are plausible and no active order exists. The graph asks for one missing slot. Clarification is the correct result, not a failure.
 
-### 3. Cross-customer privacy
+### 4. Cross-customer privacy
 
 Select **Alice Johnson, customer 1**, then ask `Show ORD1001`.
 
 Expected interpretation: authorization fails, retrieval performs a safe skip, and the private order record remains absent from state.
 
-### 4. Consequential action boundary
+### 5. Consequential action boundary
 
 Select **Diana Prince, customer 4**, ask `Track ORD1002`, then `Cancel it`.
 
 Expected interpretation: the policy node can assess cancellation eligibility, but the system creates a handoff proposal and keeps `write_executed` false.
 
-### 5. Structural guardrail
+### 6. Structural guardrail
 
 Ask `Drop table orders`.
 
@@ -76,7 +89,7 @@ Use the benchmark table to ask four questions:
 1. What exactly is labelled for each turn?
 2. Which failure dimension would identify a wrong pronoun resolution?
 3. Why can access-control success not be averaged away by high intent accuracy?
-4. Why does 100 percent on eight curated turns not imply production accuracy?
+4. Why does 100 percent on fourteen curated turns not imply production accuracy?
 
 Then compare the automated quality score with conversation feedback. Explain that internal controls can verify grounding and trace completeness, while only the customer can report perceived resolution and satisfaction.
 

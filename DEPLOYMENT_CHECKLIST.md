@@ -10,7 +10,7 @@
 - [ ] `.streamlit/config.toml` is committed.
 - [ ] `.streamlit/secrets.toml` is not committed.
 - [ ] `.gitignore` excludes secrets and local environments.
-- [ ] `pytest` reports eight passing tests locally.
+- [ ] `pytest` reports nine passing tests locally.
 - [ ] `streamlit run app.py` starts from repository root.
 
 ## GitHub
@@ -29,7 +29,7 @@
 - [ ] Select Python 3.11 or 3.12 in Advanced settings.
 - [ ] Add `OPENAI_API_KEY` only in the Secrets field if LLM mode is needed.
 - [ ] Deploy and inspect build logs.
-- [ ] Run multi-turn memory, ambiguity, authorization-failure, cancellation-handoff, and guardrail prompts on the public URL.
+- [ ] Run the six-turn clarification-continuation journey, ambiguity, authorization-failure, cancellation-handoff, and guardrail prompts on the public URL.
 - [ ] Submit one customer rating and confirm the Quality tab updates.
 
 ## Troubleshooting
