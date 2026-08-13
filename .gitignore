@@ -3,5 +3,7 @@
 __pycache__/
 .pytest_cache/
 .venv/
+.vendor/
+node_modules
 *.pyc
-
+kartify_feedback.db

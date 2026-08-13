@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kartify-agentic-orders"
+version = "2.0.0"
+description = "A teaching-grade, evaluated agentic AI case study for e-commerce order support"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+  "langgraph==1.2.11",
+  "langchain-openai==1.4.3",
+  "pandas==2.3.2",
+  "pydantic==2.13.4",
+  "rapidfuzz==3.14.1",
+]
+
+[tool.setuptools.packages.find]
+include = ["kartify_agent*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

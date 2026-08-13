@@ -1,30 +1,53 @@
 # E-commerce Orders Query Chatbot using Agentic AI
 
-This repository is a teaching-first, GitHub-ready webinar project. It demonstrates a transparent LangGraph workflow over a small SQLite e-commerce database and deploys directly to Streamlit Community Cloud.
+This is a teaching-grade, GitHub-ready case study for a 90-minute data science webinar. It demonstrates a multi-turn LangGraph support agent over a small SQLite database, an inspectable quality framework, and deployment on Streamlit Community Cloud.
 
-## What learners build
+## What is materially different in version 2
 
-- a stateful agent graph with guardrail, classifier, authorization, retrieval, policy, and response nodes;
-- parameterized, read-only SQLite tools;
-- a visible execution trace for debugging and explainability;
-- an API-free deterministic mode for a reliable live demo;
-- an optional OpenAI-assisted classifier configured through secrets;
-- a Streamlit user interface deployable from GitHub.
+The customer selects a simulated identity once, then asks natural follow-up questions without repeating customer ID or order ID. The agent retains an active-order reference, resolves phrases such as “it,” asks for missing context when several orders are plausible, and verifies ownership before private data enters graph state.
+
+The case study also includes:
+
+* typed session and turn state;
+* input guardrails and early exits;
+* read-only, allowlisted domain tools;
+* object-level authorization;
+* product matching with RapidFuzz;
+* reproducible return and cancellation policy;
+* human approval boundaries for consequential actions;
+* node-level execution traces and automated quality signals;
+* a labelled multi-turn benchmark;
+* 1-to-5 customer rating, resolution feedback, and SQLite analytics;
+* an executable architecture view in Jupyter and Streamlit;
+* deterministic mode for reliable, API-free teaching;
+* optional structured LLM classification through Streamlit secrets.
 
 ## Project structure
 
 ```text
 .
-├── app.py                         # Streamlit entry point
+├── app.py
 ├── E-commerce_Orders_Agentic_AI_Webinar.ipynb
-├── data/orders.db                # Small teaching database
-├── src/chatbot.py                # LangGraph workflow
-├── src/data.py                   # Read-only data tools
-├── tests/test_chatbot.py          # Safety and behavior checks
+├── assets/
+│   ├── agent_architecture.svg
+│   └── agent_architecture.png
+├── data/orders.db
+├── kartify_agent/
+│   ├── agent.py
+│   ├── evaluation.py
+│   ├── feedback.py
+│   ├── models.py
+│   ├── notebook_support.py
+│   └── repository.py
+├── tests/test_chatbot.py
+├── pyproject.toml
 ├── requirements.txt
-├── .streamlit/config.toml
-└── .streamlit/secrets.toml.example
+└── .streamlit/
+    ├── config.toml
+    └── secrets.toml.example
 ```
+
+The notebook imports the package instead of duplicating implementation code. This keeps the learning flow readable while the production logic remains reusable and testable.
 
 ## Run locally
 
@@ -38,56 +61,71 @@ Activate the environment, then run:
 
 ```bash
 python -m pip install -r requirements.txt
+python -m pip install -e .
+pytest
 streamlit run app.py
 ```
 
-The app works in **Deterministic demo** mode without any API key.
+The complete deterministic experience works without an API key.
+
+## Recommended conversation demo
+
+Select **Bob Smith, customer 2** once in the sidebar, then ask:
+
+1. `Where is my latest order?`
+2. `What products are in it?`
+3. `Can I return the blender?`
+
+This demonstrates latest-order resolution, conversation memory, product grounding, and policy handoff without repeating identifiers.
+
+Additional controls:
+
+* Select customer 3 and ask `Can I return an order?` to show ambiguity handling.
+* Select customer 1 and ask `Show ORD1001` to show cross-customer denial.
+* Select customer 4, ask `Track ORD1002`, then `Cancel it` to show a human approval boundary.
+* Ask `Drop table orders` to show a structural guardrail and confirm the database is unchanged.
+
+## Customer feedback and quality
+
+Use **End conversation and rate it** to record:
+
+* overall rating from 1 to 5;
+* whether the issue was resolved;
+* an optional comment;
+* conversation turns, duration, and intents.
+
+The Quality tab keeps customer feedback separate from automated controls such as authorization, groundedness, policy checks, and trace completeness. Local feedback storage on Streamlit Community Cloud is demonstration-only and can reset when the application container restarts.
 
 ## Optional LLM mode
 
 1. Copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml`.
-2. Replace the placeholder with your key.
-3. Keep `.streamlit/secrets.toml` untracked. It is already listed in `.gitignore`.
+2. Replace the placeholder with your API key.
+3. Keep `.streamlit/secrets.toml` untracked.
 
-For Streamlit Community Cloud, paste the same secret values into **Advanced settings → Secrets**. Never commit a key to GitHub.
+For Streamlit Community Cloud, add the same values in the app's Secrets settings. Never commit keys to GitHub. Optional LLM mode affects intent classification only; authorization, tools, policy, and response grounding remain controlled.
 
-## Deploy from GitHub to Streamlit Community Cloud
+## Deploy from GitHub
 
-1. Create a new GitHub repository.
-2. Upload the **contents** of this folder so `app.py` and `requirements.txt` are at repository root.
-3. Commit and push to the `main` branch.
-4. Open [Streamlit Community Cloud](https://share.streamlit.io) and select **Create app**.
-5. Choose the repository, `main` branch, and `app.py` as the entry point.
-6. In **Advanced settings**, select Python 3.11 or 3.12 and add secrets only if LLM mode is required.
-7. Select **Deploy** and watch the build logs.
+1. Keep `app.py`, `requirements.txt`, `pyproject.toml`, `kartify_agent`, `assets`, and `data` at repository root.
+2. Commit the complete folder structure to the `main` branch.
+3. In Streamlit Community Cloud, create or edit the application.
+4. Select the repository, branch `main`, and entry point `app.py`.
+5. Select Python 3.11 or 3.12.
+6. Add secrets only if optional LLM mode is required.
+7. Deploy and inspect the build log.
+8. Run the four control scenarios above and submit one feedback record.
 
-Every subsequent GitHub push triggers an app refresh.
+Every later GitHub commit triggers a Streamlit refresh.
 
-## Test before deployment
+## Release checks
 
 ```bash
-python -m pip install pytest
-pytest -q
-python -m compileall app.py src tests
+pytest
+python -m compileall app.py kartify_agent tests
 ```
 
-## Demo prompts
-
-- `Customer 5, where is ORD1001?`
-- `Show all orders for customer 3`
-- `Customer 3 wants to return ORD1004`
-- `Customer 2, what products are in ORD1003?`
-- `Customer 1, show ORD1001` — demonstrates an authorization failure.
-- `Drop table orders` — demonstrates the write guardrail.
+The current suite checks multi-turn memory, natural status requests, cross-customer privacy, unsafe writes, ambiguity, cancellation handoff, feedback analytics, and the labelled benchmark.
 
 ## Production boundary
 
-This project is intentionally compact. A production implementation should replace self-declared customer IDs with authenticated identity, move SQLite behind governed service APIs, use policy-as-code, add prompt and tool observability, redact sensitive data, require human approval for write actions, and run systematic evaluations before release.
-
-## Primary references
-
-- [LangGraph overview](https://docs.langchain.com/oss/python/langgraph/overview)
-- [Streamlit Community Cloud deployment](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app)
-- [Streamlit secrets management](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/secrets-management)
-- [OpenAI API safety best practices](https://platform.openai.com/docs/guides/safety-best-practices)
-
+This remains a teaching system. Production requires real authentication, governed services, least-privilege credentials, durable session and feedback storage, PII redaction, policy ownership, approval queues, idempotent writes, larger evaluation datasets, monitoring, canary releases, rollback criteria, and incident response.
