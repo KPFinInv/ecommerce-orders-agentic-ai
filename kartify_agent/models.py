@@ -47,7 +47,10 @@ class AgentState(TypedDict, total=False):
     customer_name: str | None
     claimed_customer_id: int | None
     active_order_id: str | None
+    active_product_name: str | None
     previous_intent: Intent | None
+    pending_intent: Intent | None
+    pending_candidate_order_ids: list[str]
     intent: Intent
     order_id: str | None
     order_reference_source: str | None

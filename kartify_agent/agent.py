@@ -88,7 +88,21 @@ def _deterministic_intent(query: str, previous_intent: Intent | None) -> Intent:
         return "product_help"
     if any(term in text for term in ("all orders", "my orders", "order history", "list orders")):
         return "order_list"
-    if any(term in text for term in ("status", "arrive", "delivery", "track", "where is", "when will")):
+    if any(
+        term in text
+        for term in (
+            "status",
+            "arrive",
+            "delivery",
+            "track",
+            "where is",
+            "when will",
+            "shipped",
+            "shipping",
+            "processing",
+            "delivered",
+        )
+    ):
         return "order_status"
     if len(text.split()) <= 4 and any(term in text for term in ("it", "that", "this order")):
         return previous_intent or "order_status"
@@ -161,8 +175,24 @@ def understand_node(state: AgentState) -> AgentState:
     query = state["query"]
     explicit_order = _extract_order_id(query)
     claimed_customer = _extract_customer_id(query)
-    llm_result = _llm_classification(query) if state.get("mode") == "LLM-assisted" else None
-    if llm_result:
+    bare_order_selection = bool(
+        explicit_order
+        and re.fullmatch(
+            r"\s*(?:order\s*)?ORD\s*[-#]?\s*\d{4}\s*[.!]?\s*",
+            query,
+            re.I,
+        )
+    )
+    pending_intent = state.get("pending_intent")
+    llm_result = (
+        _llm_classification(query)
+        if state.get("mode") == "LLM-assisted" and not (bare_order_selection and pending_intent)
+        else None
+    )
+    if bare_order_selection and pending_intent:
+        intent = pending_intent
+        method = "pending-clarification continuation"
+    elif llm_result:
         intent = llm_result.intent
         explicit_order = llm_result.order_id or explicit_order
         claimed_customer = llm_result.customer_id or claimed_customer
@@ -185,7 +215,7 @@ def understand_node(state: AgentState) -> AgentState:
                 intent,
                 f"Intent={intent}; explicit_order={explicit_order}; method={method}.",
                 started=started,
-                data_used=["query", "previous_intent"],
+                data_used=["query", "previous_intent", "pending_intent"],
             )
         ],
     }
@@ -278,6 +308,10 @@ def resolve_context_node(state: AgentState) -> AgentState:
             **base,
             "candidate_orders": owned_orders[:4],
             "candidate_order_ids": [row["order_id"] for row in owned_orders[:4]],
+            "pending_intent": intent,
+            "pending_candidate_order_ids": [
+                row["order_id"] for row in owned_orders[:4]
+            ],
             "needs_clarification": True,
             "trace": [
                 _event(
@@ -294,6 +328,8 @@ def resolve_context_node(state: AgentState) -> AgentState:
         **base,
         "order_id": order_id,
         "active_order_id": order_id,
+        "pending_intent": None,
+        "pending_candidate_order_ids": [],
         "order_reference_source": source,
         "trace": [
             _event(
@@ -401,6 +437,39 @@ def _match_product(query: str, items: list[dict[str, Any]]) -> dict[str, Any] | 
 def policy_node(state: AgentState) -> AgentState:
     started = time.perf_counter()
     intent, order = state["intent"], state.get("order")
+    if order and intent == "product_help":
+        matched = _match_product(state["query"], order["items"])
+        if not matched and state.get("active_product_name"):
+            matched = next(
+                (
+                    item
+                    for item in order["items"]
+                    if item["name"].lower() == state["active_product_name"].lower()
+                ),
+                None,
+            )
+        if not matched and len(order["items"]) == 1:
+            matched = order["items"][0]
+        return {
+            "matched_product": matched,
+            "active_product_name": matched["name"] if matched else None,
+            "policy": {},
+            "handoff": False,
+            "write_executed": False,
+            "trace": [
+                _event(
+                    "policy",
+                    "product_context",
+                    (
+                        f"Resolved product context to {matched['name']}."
+                        if matched
+                        else "No single product reference was required."
+                    ),
+                    started=started,
+                    data_used=["query", "active_product_name", "order.items"],
+                )
+            ],
+        }
     if not order or intent not in {"return_help", "cancel_request"}:
         return {
             "policy": {},
@@ -420,6 +489,17 @@ def policy_node(state: AgentState) -> AgentState:
     age_days = max(0, (POLICY_AS_OF - order_day).days)
     if intent == "return_help":
         matched = _match_product(state["query"], order["items"])
+        if not matched and state.get("active_product_name"):
+            matched = next(
+                (
+                    item
+                    for item in order["items"]
+                    if item["name"].lower() == state["active_product_name"].lower()
+                ),
+                None,
+            )
+        if not matched and len(order["items"]) == 1:
+            matched = order["items"][0]
         considered = [matched] if matched else order["items"]
         windows = [int(re.search(r"\d+", item["return_policy"]).group()) for item in considered]
         window_days = min(windows)
@@ -435,6 +515,7 @@ def policy_node(state: AgentState) -> AgentState:
         }
         return {
             "matched_product": matched,
+            "active_product_name": matched["name"] if matched else state.get("active_product_name"),
             "policy": policy,
             "handoff": True,
             "write_executed": False,
@@ -533,11 +614,22 @@ def respond_node(state: AgentState) -> AgentState:
             "trace": [_event("respond", "not_found", "Reported an evidence gap.", started=started)],
         }
     if state["intent"] == "product_help":
-        lines = [
-            f"• {item['name']} × {item['quantity']} — warranty {item['warranty_period']}; return window {item['return_policy']}"
-            for item in order["items"]
-        ]
-        text = f"{order['order_id']} contains:\n" + "\n".join(lines)
+        matched = state.get("matched_product")
+        if matched and any(
+            term in state["query"].lower()
+            for term in ("warranty", "guarantee", "return window", "how long")
+        ):
+            text = (
+                f"The {matched['name']} in {order['order_id']} has a "
+                f"{matched['warranty_period']} warranty and a {matched['return_policy']} "
+                "return window."
+            )
+        else:
+            lines = [
+                f"• {item['name']} × {item['quantity']} — warranty {item['warranty_period']}; return window {item['return_policy']}"
+                for item in order["items"]
+            ]
+            text = f"{order['order_id']} contains:\n" + "\n".join(lines)
         outcome = "resolved"
     elif state["intent"] == "return_help":
         policy = state["policy"]
@@ -684,7 +776,10 @@ class SupportSession:
         self.customer_name = customer["name"]
         self.mode = mode
         self.active_order_id: str | None = None
+        self.active_product_name: str | None = None
         self.previous_intent: Intent | None = None
+        self.pending_intent: Intent | None = None
+        self.pending_candidate_order_ids: list[str] = []
         self.turns = 0
         self.started_at = time.perf_counter()
         self.history: list[dict[str, Any]] = []
@@ -700,13 +795,34 @@ class SupportSession:
                 "customer_id": self.customer_id,
                 "customer_name": self.customer_name,
                 "active_order_id": self.active_order_id,
+                "active_product_name": self.active_product_name,
                 "previous_intent": self.previous_intent,
+                "pending_intent": self.pending_intent,
+                "pending_candidate_order_ids": self.pending_candidate_order_ids,
                 "trace": [],
             }
         )
         self.turns += 1
+        previous_active_order = self.active_order_id
         self.active_order_id = result.get("active_order_id") or self.active_order_id
+        if self.active_order_id != previous_active_order:
+            self.active_product_name = None
+        if result.get("matched_product"):
+            self.active_product_name = result["matched_product"]["name"]
+        elif result.get("active_product_name"):
+            self.active_product_name = result["active_product_name"]
         self.previous_intent = result.get("intent") or self.previous_intent
+        if result.get("needs_clarification") and result.get("candidate_order_ids"):
+            self.pending_intent = result.get("intent")
+            self.pending_candidate_order_ids = list(result["candidate_order_ids"])
+        elif result.get("order_id") or result.get("outcome") in {
+            "resolved",
+            "denied",
+            "human_handoff",
+            "ended",
+        }:
+            self.pending_intent = None
+            self.pending_candidate_order_ids = []
         elapsed_ms = round((time.perf_counter() - started) * 1000, 2)
         result.setdefault("quality", {})["latency_ms"] = elapsed_ms
         result["conversation_id"] = self.conversation_id
@@ -718,6 +834,8 @@ class SupportSession:
                 "response": result["response"],
                 "intent": result.get("intent"),
                 "active_order_id": self.active_order_id,
+                "active_product_name": self.active_product_name,
+                "pending_intent": self.pending_intent,
                 "outcome": result.get("outcome"),
                 "quality_score": result.get("quality", {}).get("automated_quality_score"),
                 "latency_ms": elapsed_ms,
@@ -731,7 +849,10 @@ class SupportSession:
             "customer_id": self.customer_id,
             "customer_name": self.customer_name,
             "active_order_id": self.active_order_id,
+            "active_product_name": self.active_product_name,
             "previous_intent": self.previous_intent,
+            "pending_intent": self.pending_intent,
+            "pending_candidate_order_ids": self.pending_candidate_order_ids,
             "turns": self.turns,
         }
 

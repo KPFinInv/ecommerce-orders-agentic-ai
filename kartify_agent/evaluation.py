@@ -11,6 +11,23 @@ from .agent import SupportSession, ask
 
 BENCHMARK: list[dict[str, Any]] = [
     {
+        "scenario": "Clarification continuation",
+        "customer_id": 1,
+        "turns": [
+            (
+                "Can you check and tell me which products are there in my order?",
+                "product_help",
+                None,
+                "clarification",
+            ),
+            ("ORD1009", "product_help", "ORD1009", "resolved"),
+            ("What warranty does it have?", "product_help", "ORD1009", "resolved"),
+            ("Where is it now?", "order_status", "ORD1009", "resolved"),
+            ("When will it arrive?", "order_status", "ORD1009", "resolved"),
+            ("Can I return it?", "return_help", "ORD1009", "human_handoff"),
+        ],
+    },
+    {
         "scenario": "Context memory",
         "customer_id": 2,
         "turns": [
