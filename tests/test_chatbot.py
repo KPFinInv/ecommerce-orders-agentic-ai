@@ -12,6 +12,31 @@ def test_identity_and_order_context_persist_across_turns():
     assert "Portable Blender" in second["response"]
 
 
+def test_clarification_selection_continues_original_task_for_six_turns():
+    session = SupportSession(1)
+
+    clarification = session.ask(
+        "Can you check and tell me which products are there in my order?"
+    )
+    selection = session.ask("ORD1009")
+    warranty = session.ask("What warranty does it have?")
+    status = session.ask("Where is it now?")
+    delivery = session.ask("When will it arrive?")
+    returned = session.ask("Can I return it?")
+
+    assert clarification["outcome"] == "clarification"
+    assert session.turns == 6
+    assert selection["intent"] == "product_help"
+    assert selection["active_order_id"] == "ORD1009"
+    assert "Smartwatch X" in selection["response"]
+    assert "1 year warranty" in warranty["response"]
+    assert status["intent"] == "order_status"
+    assert delivery["active_order_id"] == "ORD1009"
+    assert returned["intent"] == "return_help"
+    assert returned["active_order_id"] == "ORD1009"
+    assert session.context()["pending_intent"] is None
+
+
 def test_natural_status_query_does_not_require_repeated_identifiers():
     result = SupportSession(5).ask("Where is my latest order?")
 
