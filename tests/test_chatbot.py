@@ -1,4 +1,13 @@
-from kartify_agent import FeedbackStore, SupportSession, ask, benchmark_summary, run_benchmark
+import kartify_agent.agent as agent_module
+from kartify_agent import (
+    GROQ_MODE,
+    FeedbackStore,
+    SupportSession,
+    ask,
+    benchmark_summary,
+    run_benchmark,
+)
+from kartify_agent.models import Classification
 
 
 def test_identity_and_order_context_persist_across_turns():
@@ -99,3 +108,38 @@ def test_labelled_benchmark_is_a_release_gate():
     assert results["passed"].all()
     assert summary["access_control_pass_rate"] == 1.0
     assert summary["groundedness_pass_rate"] == 1.0
+
+
+def test_free_llm_mode_falls_back_safely_without_credentials(monkeypatch):
+    monkeypatch.delenv("GROQ_API_KEY", raising=False)
+
+    result = SupportSession(1, mode=GROQ_MODE).ask("Where is ORD1009?")
+
+    assert result["outcome"] == "resolved"
+    assert result["understanding_provider"] == "deterministic"
+    assert result["understanding_fallback"] is True
+    assert result["understanding_failure"] == "credentials_unavailable"
+
+
+def test_free_llm_classification_expands_language_without_weakening_controls(monkeypatch):
+    def fake_classification(*args, **kwargs):
+        return Classification(
+            intent="product_help", order_id="ORD1009", customer_id=None
+        ), {
+            "provider": "GroqCloud",
+            "model": "openai/gpt-oss-20b",
+            "fallback": False,
+            "failure": None,
+        }
+
+    monkeypatch.setattr(agent_module, "_llm_classification", fake_classification)
+    result = SupportSession(1, mode=GROQ_MODE).ask(
+        "Could you remind me what came in that parcel, ORD1009?"
+    )
+
+    assert result["intent"] == "product_help"
+    assert result["authorized"] is True
+    assert "Smartwatch X" in result["response"]
+    assert result["understanding_provider"] == "GroqCloud"
+    assert result["understanding_model"] == "openai/gpt-oss-20b"
+    assert result["understanding_fallback"] is False
