@@ -23,11 +23,28 @@ from .repository import (
 
 POLICY_AS_OF = date.fromisoformat(os.getenv("KARTIFY_POLICY_DATE", "2025-10-31"))
 
+DETERMINISTIC_MODE = "Deterministic demo"
+GROQ_MODE = "Free LLM assisted: GPT OSS 20B"
+OPENAI_MODE = "OpenAI assisted"
+LEGACY_LLM_MODE = "LLM-assisted"
+
+
+def available_understanding_modes() -> list[str]:
+    """Return only modes whose credentials are configured, without exposing secrets."""
+    modes = [DETERMINISTIC_MODE]
+    if os.getenv("GROQ_API_KEY"):
+        modes.append(GROQ_MODE)
+    if os.getenv("OPENAI_API_KEY"):
+        modes.append(OPENAI_MODE)
+    return modes
+
 ARCHITECTURE_MERMAID = """flowchart TD
     UI[Streamlit / Notebook] --> SESSION[Demo identity + conversation session]
     SESSION --> G[Input guardrail]
-    G -->|safe| U[Intent + entity understanding]
+    G -->|safe| S[Understanding selector]
     G -->|blocked| R[Grounded response]
+    S --> U[Rules or structured LLM classification]
+    L[Optional language model: Groq GPT-OSS or OpenAI] --> U
     U --> C[Context resolver]
     C -->|needs one slot| R
     C --> A[Object-level authorization]
@@ -109,22 +126,113 @@ def _deterministic_intent(query: str, previous_intent: Intent | None) -> Intent:
     return "general_help"
 
 
-def _llm_classification(query: str) -> Classification | None:
-    """Classify variable language only when optional model credentials exist."""
-    if not os.getenv("OPENAI_API_KEY"):
-        return None
+def _provider_configuration(mode: str) -> dict[str, str] | None:
+    """Resolve a provider configuration without returning it to application state."""
+    if mode == GROQ_MODE or (
+        mode == LEGACY_LLM_MODE
+        and os.getenv("GROQ_API_KEY")
+        and not os.getenv("OPENAI_API_KEY")
+    ):
+        if not os.getenv("GROQ_API_KEY"):
+            return None
+        return {
+            "provider": "GroqCloud",
+            "model": os.getenv("GROQ_MODEL", "openai/gpt-oss-20b"),
+            "api_key": os.environ["GROQ_API_KEY"],
+            "base_url": "https://api.groq.com/openai/v1",
+        }
+    if mode in {OPENAI_MODE, LEGACY_LLM_MODE}:
+        if not os.getenv("OPENAI_API_KEY"):
+            return None
+        return {
+            "provider": "OpenAI",
+            "model": os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),
+            "api_key": os.environ["OPENAI_API_KEY"],
+            "base_url": "https://api.openai.com/v1",
+        }
+    return None
+
+
+def _safe_llm_failure(error: Exception) -> str:
+    """Map provider failures to non-sensitive operational categories."""
+    error_name = type(error).__name__.lower()
+    if "rate" in error_name:
+        return "rate_limit"
+    if "auth" in error_name or "permission" in error_name:
+        return "authentication"
+    if "timeout" in error_name:
+        return "timeout"
+    if "connection" in error_name:
+        return "connection"
+    return "provider_error"
+
+
+def _llm_classification(
+    query: str,
+    *,
+    mode: str,
+    previous_intent: Intent | None,
+    active_order_id: str | None,
+    active_product_name: str | None,
+    pending_intent: Intent | None,
+) -> tuple[Classification | None, dict[str, Any]]:
+    """Use a structured model for understanding and fail closed to deterministic routing."""
+    configured = _provider_configuration(mode)
+    if not configured:
+        return None, {
+            "provider": "deterministic",
+            "model": None,
+            "fallback": mode != DETERMINISTIC_MODE,
+            "failure": "credentials_unavailable" if mode != DETERMINISTIC_MODE else None,
+        }
     try:
         from langchain_openai import ChatOpenAI
 
         model = ChatOpenAI(
-            model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"), temperature=0
-        ).with_structured_output(Classification)
-        return model.invoke(
-            "Classify this e-commerce support turn. Extract only explicit identifiers. "
-            f"Request: {query}"
+            model=configured["model"],
+            api_key=configured["api_key"],
+            base_url=configured["base_url"],
+            temperature=0,
+            timeout=12,
+            max_retries=1,
+        ).with_structured_output(Classification, method="json_schema", strict=True)
+        raw_result = model.invoke(
+            [
+                (
+                    "system",
+                    "Classify one e-commerce order-support turn. Choose exactly one allowed "
+                    "intent. Use conversation context only to understand references. Extract an "
+                    "order_id or customer_id only when the current user message states it "
+                    "explicitly; never copy or invent an identifier from context.",
+                ),
+                (
+                    "human",
+                    "Current request: " + query + "\n"
+                    f"Previous intent: {previous_intent or 'none'}\n"
+                    f"Active order reference: {active_order_id or 'none'}\n"
+                    f"Active product reference: {active_product_name or 'none'}\n"
+                    f"Pending clarification intent: {pending_intent or 'none'}",
+                ),
+            ]
         )
-    except Exception:
-        return None
+        result = (
+            raw_result
+            if isinstance(raw_result, Classification)
+            else Classification.model_validate(raw_result)
+        )
+        return result, {
+            "provider": configured["provider"],
+            "model": configured["model"],
+            "fallback": False,
+            "failure": None,
+        }
+    except Exception as error:
+        return None, {
+            "provider": configured["provider"],
+            "model": configured["model"],
+            "fallback": True,
+            "failure": _safe_llm_failure(error),
+        }
 
 
 def guardrail_node(state: AgentState) -> AgentState:
@@ -184,11 +292,26 @@ def understand_node(state: AgentState) -> AgentState:
         )
     )
     pending_intent = state.get("pending_intent")
-    llm_result = (
-        _llm_classification(query)
-        if state.get("mode") == "LLM-assisted" and not (bare_order_selection and pending_intent)
-        else None
-    )
+    mode = state.get("mode") or DETERMINISTIC_MODE
+    if mode != DETERMINISTIC_MODE and not (bare_order_selection and pending_intent):
+        llm_result, understanding = _llm_classification(
+            query,
+            mode=mode,
+            previous_intent=state.get("previous_intent"),
+            active_order_id=state.get("active_order_id"),
+            active_product_name=state.get("active_product_name"),
+            pending_intent=pending_intent,
+        )
+    else:
+        llm_result = None
+        understanding = {
+            "provider": "conversation memory"
+            if bare_order_selection and pending_intent
+            else "deterministic",
+            "model": None,
+            "fallback": False,
+            "failure": None,
+        }
     if bare_order_selection and pending_intent:
         intent = pending_intent
         method = "pending-clarification continuation"
@@ -199,7 +322,11 @@ def understand_node(state: AgentState) -> AgentState:
         method = "optional structured LLM"
     else:
         intent = _deterministic_intent(query, state.get("previous_intent"))
-        method = "deterministic domain classifier"
+        method = (
+            "deterministic fallback"
+            if understanding["fallback"]
+            else "deterministic domain classifier"
+        )
     if explicit_order:
         explicit_order = re.sub(r"[^A-Z0-9]", "", explicit_order.upper())
         if intent == "general_help":
@@ -207,13 +334,20 @@ def understand_node(state: AgentState) -> AgentState:
             method += " + explicit-order fallback"
     return {
         "intent": intent,
+        "understanding_provider": understanding["provider"],
+        "understanding_model": understanding["model"],
+        "understanding_fallback": understanding["fallback"],
+        "understanding_failure": understanding["failure"],
         "order_id": explicit_order,
         "claimed_customer_id": claimed_customer,
         "trace": [
             _event(
                 "understand",
                 intent,
-                f"Intent={intent}; explicit_order={explicit_order}; method={method}.",
+                f"Intent={intent}; explicit_order={explicit_order}; method={method}; "
+                f"provider={understanding['provider']}; model={understanding['model'] or 'none'}; "
+                f"fallback={understanding['fallback']}; "
+                f"failure={understanding['failure'] or 'none'}.",
                 started=started,
                 data_used=["query", "previous_intent", "pending_intent"],
             )
@@ -767,7 +901,7 @@ GRAPH = build_graph()
 class SupportSession:
     """Conversation façade that keeps identity and active-order context across turns."""
 
-    def __init__(self, customer_id: int, mode: str = "Deterministic demo"):
+    def __init__(self, customer_id: int, mode: str = DETERMINISTIC_MODE):
         customer = get_customer(customer_id)
         if not customer:
             raise ValueError(f"Unknown demo customer: {customer_id}")
@@ -836,6 +970,9 @@ class SupportSession:
                 "active_order_id": self.active_order_id,
                 "active_product_name": self.active_product_name,
                 "pending_intent": self.pending_intent,
+                "understanding_provider": result.get("understanding_provider"),
+                "understanding_model": result.get("understanding_model"),
+                "understanding_fallback": result.get("understanding_fallback", False),
                 "outcome": result.get("outcome"),
                 "quality_score": result.get("quality", {}).get("automated_quality_score"),
                 "latency_ms": elapsed_ms,
@@ -871,7 +1008,7 @@ class SupportSession:
         }
 
 
-def ask(query: str, mode: str = "Deterministic demo") -> AgentState:
+def ask(query: str, mode: str = DETERMINISTIC_MODE) -> AgentState:
     """Backward-compatible one-turn helper; prefer SupportSession for conversation memory."""
     customer_id = _extract_customer_id(query)
     if customer_id and get_customer(customer_id):
