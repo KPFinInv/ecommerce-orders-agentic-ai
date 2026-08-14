@@ -2,7 +2,7 @@
 
 This is a teaching-grade, GitHub-ready case study for a 90-minute data science webinar. It demonstrates a multi-turn LangGraph support agent over a small SQLite database, an inspectable quality framework, and deployment on Streamlit Community Cloud.
 
-## What is materially different in version 2.1
+## What is materially different in version 2.2
 
 The customer selects a simulated identity once, then asks natural follow-up questions without repeating customer ID or order ID. The agent retains an active-order reference, resolves phrases such as “it,” asks for missing context when several orders are plausible, and verifies ownership before private data enters graph state.
 
@@ -22,7 +22,9 @@ The case study also includes:
 * 1-to-5 customer rating, resolution feedback, and SQLite analytics;
 * an executable architecture view in Jupyter and Streamlit;
 * deterministic mode for reliable, API-free teaching;
-* optional structured LLM classification through Streamlit secrets.
+* free structured LLM classification using OpenAI GPT OSS 20B on GroqCloud;
+* optional OpenAI API classification through Streamlit secrets;
+* automatic deterministic fallback when an LLM provider is unavailable or rate limited.
 
 ## Project structure
 
@@ -111,13 +113,24 @@ Use **End conversation and rate it** to record:
 
 The Quality tab keeps customer feedback separate from automated controls such as authorization, groundedness, policy checks, and trace completeness. Local feedback storage on Streamlit Community Cloud is demonstration-only and can reset when the application container restarts.
 
-## Optional LLM mode
+## Free GroqCloud LLM mode
 
 1. Copy `.streamlit/secrets.toml.example` to `.streamlit/secrets.toml`.
-2. Replace the placeholder with your API key.
+2. Add a GroqCloud key as `GROQ_API_KEY`.
+3. Keep `GROQ_MODEL = "openai/gpt-oss-20b"`.
+4. Keep `.streamlit/secrets.toml` untracked.
+
+For Streamlit Community Cloud, add the same two values in the app's Secrets settings. Never commit keys to GitHub. The sidebar will expose **Free LLM assisted: GPT OSS 20B** only when the key is configured.
+
+GroqCloud's free plan is quota limited. If a request times out, fails authentication, or reaches a rate limit, the same turn automatically uses the deterministic classifier. The trace records the provider, model, fallback status, and a non-sensitive failure category.
+
+## Optional OpenAI API mode
+
+1. Add `OPENAI_API_KEY` through local or Streamlit secrets.
+2. Set `OPENAI_MODEL` to the approved model for the account.
 3. Keep `.streamlit/secrets.toml` untracked.
 
-For Streamlit Community Cloud, add the same values in the app's Secrets settings. Never commit keys to GitHub. Optional LLM mode affects intent classification only; authorization, tools, policy, and response grounding remain controlled.
+Both model modes affect intent and explicit-entity classification only. Authorization, tools, policy, memory, and response grounding remain controlled.
 
 ## Deploy from GitHub
 
@@ -126,7 +139,7 @@ For Streamlit Community Cloud, add the same values in the app's Secrets settings
 3. In Streamlit Community Cloud, create or edit the application.
 4. Select the repository, branch `main`, and entry point `app.py`.
 5. Select Python 3.11 or 3.12.
-6. Add secrets only if optional LLM mode is required.
+6. Add `GROQ_API_KEY` and `GROQ_MODEL` in Secrets for the free LLM demonstration.
 7. Deploy and inspect the build log.
 8. Run the four control scenarios above and submit one feedback record.
 
@@ -139,7 +152,7 @@ pytest
 python -m compileall app.py kartify_agent tests
 ```
 
-The current suite checks multi-turn memory, natural status requests, cross-customer privacy, unsafe writes, ambiguity, cancellation handoff, feedback analytics, and the labelled benchmark.
+The current suite contains eleven tests covering multi-turn memory, clarification continuation, natural status requests, cross-customer privacy, unsafe writes, ambiguity, cancellation handoff, feedback analytics, the labelled benchmark, structured LLM routing, and deterministic provider fallback.
 
 ## Production boundary
 
