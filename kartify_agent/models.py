@@ -52,6 +52,10 @@ class AgentState(TypedDict, total=False):
     pending_intent: Intent | None
     pending_candidate_order_ids: list[str]
     intent: Intent
+    understanding_provider: str
+    understanding_model: str | None
+    understanding_fallback: bool
+    understanding_failure: str | None
     order_id: str | None
     order_reference_source: str | None
     candidate_orders: list[dict[str, Any]]
@@ -78,8 +82,12 @@ class Classification(BaseModel):
     """Structured model output used only when optional LLM mode is enabled."""
 
     intent: Intent
-    order_id: str | None = None
-    customer_id: int | None = None
+    order_id: str | None = Field(
+        description="Order ID stated explicitly in the current message, otherwise null."
+    )
+    customer_id: int | None = Field(
+        description="Customer ID stated explicitly in the current message, otherwise null."
+    )
 
 
 class FeedbackRecord(BaseModel):
