@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "kartify-agentic-orders"
-version = "2.1.0"
+version = "2.2.0"
 description = "A teaching-grade, evaluated agentic AI case study for e-commerce order support"
 requires-python = ">=3.11,<3.13"
 dependencies = [
