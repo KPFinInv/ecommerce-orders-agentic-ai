@@ -8,7 +8,16 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 
-from kartify_agent import FeedbackStore, SupportSession, benchmark_summary, run_benchmark
+from kartify_agent import (
+    DETERMINISTIC_MODE,
+    GROQ_MODE,
+    OPENAI_MODE,
+    FeedbackStore,
+    SupportSession,
+    available_understanding_modes,
+    benchmark_summary,
+    run_benchmark,
+)
 from kartify_agent.repository import database_summary, list_customers
 
 
@@ -25,7 +34,7 @@ def load_cloud_secrets() -> None:
         configured = dict(st.secrets)
     except FileNotFoundError:
         configured = {}
-    for key in ("OPENAI_API_KEY", "OPENAI_MODEL"):
+    for key in ("GROQ_API_KEY", "GROQ_MODEL", "OPENAI_API_KEY", "OPENAI_MODEL"):
         if key in configured and not os.getenv(key):
             os.environ[key] = str(configured[key])
 
@@ -59,14 +68,14 @@ with st.sidebar:
         ),
     )
     st.caption("Select identity once; the customer does not repeat it in every message.")
-    llm_available = bool(os.getenv("OPENAI_API_KEY"))
-    modes = ["Deterministic demo"] + (["LLM-assisted"] if llm_available else [])
+    modes = available_understanding_modes()
     selected_mode = st.radio("Understanding mode", modes)
-    st.success(
-        "Ready: optional LLM mode is available."
-        if llm_available
-        else "Ready: deterministic mode is active; no API key is required."
-    )
+    if selected_mode == GROQ_MODE:
+        st.success("Configured: GroqCloud is using OpenAI GPT OSS 20B with safe fallback.")
+    elif selected_mode == OPENAI_MODE:
+        st.success("Configured: OpenAI assisted understanding is available with safe fallback.")
+    else:
+        st.success("Ready: deterministic mode is active; no API key is required.")
     if st.button("Start a new conversation", width="stretch"):
         new_conversation(selected_customer, selected_mode)
 
@@ -120,9 +129,9 @@ with chat_tab:
     prompt_columns = st.columns(4)
     sample_prompts = [
         "Where is my latest order?",
-        "What products are in it?",
-        "Can I return it?",
-        "Cancel it",
+        "What exactly came in that parcel?",
+        "Is the watch still covered?",
+        "Could I send it back if I changed my mind?",
     ]
     for column, sample in zip(prompt_columns, sample_prompts):
         if column.button(sample, width="stretch"):
@@ -149,6 +158,11 @@ with chat_tab:
 
     result = st.session_state.last_result
     if result:
+        if result.get("understanding_fallback"):
+            st.warning(
+                "The language-model request was unavailable for this turn. The governed "
+                "deterministic classifier completed the request, so the conversation continued."
+            )
         st.subheader("Why the agent answered this way")
         trace_view, state_view, evidence_view = st.tabs(
             ["Execution trace", "Session state", "Grounding evidence"]
@@ -215,6 +229,10 @@ with architecture_tab:
 The architecture distinguishes **conversation memory** from database evidence. Memory may
 retain a customer scope and active order reference, but it does not bypass authorization.
 Every order retrieval still passes the object-level ownership check.
+
+The understanding selector can use deterministic rules, the free GroqCloud-hosted OpenAI
+GPT OSS 20B model, or an OpenAI API model. Only intent and explicit-entity classification
+are delegated. Provider failure automatically falls back to the deterministic classifier.
 
 The final evaluation node produces automated control signals. Customer satisfaction is
 captured separately because a system cannot infer perceived resolution from its own trace.
