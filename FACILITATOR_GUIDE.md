@@ -14,22 +14,24 @@ Learners should leave able to explain an agent as a controlled state, routing, t
 | 25 to 37 min | Executable architecture | Trace safe, ambiguous, denied, and blocked paths through the graph | Read a controlled LangGraph design |
 | 37 to 54 min | Multi-turn lab | Run Alice's six-turn clarification journey and inspect state plus trace | See pending-task, active-order, and product memory working |
 | 54 to 66 min | Boundary experiments | Demonstrate ambiguity, cross-customer denial, cancellation handoff, and write guardrail | Understand safe non-happy paths |
-| 66 to 77 min | Data science evaluation | Run the labelled benchmark, confusion matrix, scorecard, and latency measure | Treat agent quality as an evaluation dataset |
-| 77 to 83 min | Customer feedback | Submit a rating and discuss sample-size uncertainty | Separate self-evaluation from customer outcomes |
-| 83 to 88 min | Streamlit and deployment | Show the live tabs and GitHub to Community Cloud operating model | Understand how the tested package becomes an application |
+| 66 to 73 min | LLM comparison | Compare deterministic and Groq GPT OSS understanding on flexible language | See where an LLM adds value without receiving operational authority |
+| 73 to 81 min | Data science evaluation | Run the labelled benchmark, confusion matrix, scorecard, and latency measure | Treat agent quality as an evaluation dataset |
+| 81 to 85 min | Customer feedback | Submit a rating and discuss sample-size uncertainty | Separate self-evaluation from customer outcomes |
+| 85 to 89 min | Streamlit and deployment | Show the live tabs and GitHub to Community Cloud operating model | Understand how the tested package becomes an application |
 | 88 to 90 min | Close | Review production gaps and assign the extension | Leave with a practical next step |
 
 ## Pre-session checklist
 
 * Use Python 3.11 or 3.12.
 * Install `requirements.txt` at least one day before the webinar.
-* Run `pytest` and confirm nine passing tests.
+* Run `pytest` and confirm eleven passing tests.
 * Run every notebook cell from a fresh kernel.
 * Run `streamlit run app.py` from repository root.
 * Verify that the architecture SVG renders in the notebook and Streamlit.
 * Submit one test feedback record, then explain that Community Cloud local storage can reset.
-* Keep deterministic mode as the primary live path.
-* If using optional LLM mode, store the API key only in secrets and set a usage limit.
+* Keep deterministic mode available as the zero-dependency contingency path.
+* Store Groq and OpenAI keys only in secrets. Never paste a key into the notebook or repository.
+* Confirm **Free LLM assisted: GPT OSS 20B** appears in the Streamlit sidebar.
 * Open the deck, notebook, repository, deployed app, and Streamlit logs in separate tabs.
 * Keep screenshots of the architecture, multi-turn trace, and benchmark as contingencies.
 
@@ -81,6 +83,12 @@ Expected interpretation: the policy node can assess cancellation eligibility, bu
 Ask `Drop table orders`.
 
 Expected interpretation: the trace contains only guardrail, respond, and evaluate. Understanding, authorization, tools, and policy do not run. The database still contains ten orders.
+
+### 7. Flexible language comparison
+
+Select **Alice Johnson, customer 1** and establish ORD1009. Ask `Could you remind me what came in that parcel?` first in deterministic mode and then in **Free LLM assisted: GPT OSS 20B** mode.
+
+Expected interpretation: the model can map a paraphrase such as “what came in that parcel” to `product_help`. The trace identifies GroqCloud and `openai/gpt-oss-20b`. Authorization, retrieval, and response grounding still run through the same governed nodes. If the provider is unavailable, the trace records a safe deterministic fallback instead of ending the conversation.
 
 ## Evaluation discussion
 
