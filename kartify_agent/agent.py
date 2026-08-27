@@ -27,6 +27,7 @@ DETERMINISTIC_MODE = "Deterministic demo"
 GROQ_MODE = "Free LLM assisted: GPT OSS 20B"
 OPENAI_MODE = "OpenAI assisted"
 LEGACY_LLM_MODE = "LLM-assisted"
+SESSION_SCHEMA_VERSION = 3
 
 
 def available_understanding_modes() -> list[str]:
@@ -94,17 +95,71 @@ def _extract_order_id(query: str) -> str | None:
 
 
 def _deterministic_intent(query: str, previous_intent: Intent | None) -> Intent:
-    text = query.lower().strip()
+    text = re.sub(r"\s+", " ", query.lower()).strip()
     if any(term in text for term in ("bye", "goodbye", "end conversation", "that's all", "thats all")):
         return "end_conversation"
-    if any(term in text for term in ("cancel", "stop the order", "refund now")):
+    if (
+        re.search(r"\b(cancel|cancellation)\b", text)
+        or re.search(r"\bstop\b.{0,35}\b(order|purchase)\b", text)
+        or re.search(r"\b(order|purchase)\b.{0,35}\b(stop|cancelled|canceled)\b", text)
+        or any(
+            term in text
+            for term in (
+                "do not ship",
+                "don't ship",
+                "dont ship",
+                "before it ships",
+                "does not go ahead",
+                "doesn't go ahead",
+                "doesnt go ahead",
+            )
+        )
+    ):
         return "cancel_request"
-    if any(term in text for term in ("return", "replace", "damaged", "broken", "defective")):
+    if (
+        any(
+            term in text
+            for term in (
+                "return",
+                "replace",
+                "damaged",
+                "broken",
+                "defective",
+                "changed my mind",
+                "change my mind",
+            )
+        )
+        or re.search(r"\b(send|take|ship)\b.{0,35}\b(it|that|this|one|item|product)?\s*back\b", text)
+    ):
         return "return_help"
-    if any(term in text for term in ("product", "item", "warranty", "what did i buy", "what is in")):
-        return "product_help"
     if any(term in text for term in ("all orders", "my orders", "order history", "list orders")):
         return "order_list"
+    if (
+        any(
+            term in text
+            for term in (
+                "product",
+                "item",
+                "warranty",
+                "guarantee",
+                "covered",
+                "coverage",
+                "what did i buy",
+                "what is in",
+                "what's in",
+                "whats in",
+                "what came in",
+                "came in that parcel",
+                "came in the parcel",
+                "parcel contents",
+                "order contents",
+                "what i bought",
+                "what i purchased",
+            )
+        )
+        or re.search(r"\b(what|which)\b.{0,35}\b(buy|bought|purchase|purchased|receive|received)\b", text)
+    ):
+        return "product_help"
     if any(
         term in text
         for term in (
@@ -118,12 +173,29 @@ def _deterministic_intent(query: str, previous_intent: Intent | None) -> Intent:
             "shipping",
             "processing",
             "delivered",
+            "get here",
+            "reach me",
+            "reach us",
+            "parcel now",
+            "order now",
+            "whereabouts",
         )
     ):
         return "order_status"
-    if len(text.split()) <= 4 and any(term in text for term in ("it", "that", "this order")):
+    if len(text.split()) <= 8 and any(
+        term in text for term in ("it", "that", "this order", "that one", "this one")
+    ):
         return previous_intent or "order_status"
     return "general_help"
+
+
+def _attributive_duration(value: str) -> str:
+    """Convert '3 years' into the natural modifier '3-year' for customer text."""
+    match = re.fullmatch(r"\s*(\d+)\s+([a-zA-Z]+)\s*", value)
+    if not match:
+        return value.strip()
+    count, unit = match.groups()
+    return f"{count}-{unit.rstrip('s')}"
 
 
 def _provider_configuration(mode: str) -> dict[str, str] | None:
@@ -200,10 +272,20 @@ def _llm_classification(
             [
                 (
                     "system",
-                    "Classify one e-commerce order-support turn. Choose exactly one allowed "
-                    "intent. Use conversation context only to understand references. Extract an "
-                    "order_id or customer_id only when the current user message states it "
-                    "explicitly; never copy or invent an identifier from context.",
+                    "Classify one e-commerce order-support turn into exactly one allowed intent. "
+                    "Use order_status for tracking, delivery, arrival, or parcel whereabouts; "
+                    "order_list for a list or history of orders; product_help for order contents, "
+                    "purchased items, warranty, guarantee, or whether a product is covered; "
+                    "return_help for returns, replacements, defects, changed-mind requests, or "
+                    "sending an item back; cancel_request for stopping or cancelling an order; "
+                    "end_conversation for closing; and general_help only when the request is truly "
+                    "outside those categories. Examples: 'what came in that parcel?' is "
+                    "product_help; 'how long is the monitor covered?' is product_help; 'could I "
+                    "send that one back?' is return_help; 'when should the parcel get here?' is "
+                    "order_status; 'stop this order before it ships' is cancel_request. Use the "
+                    "bounded conversation context to resolve references such as it, that one, or "
+                    "the parcel. Extract an order_id or customer_id only when the current user "
+                    "message states it explicitly; never copy or invent an identifier from context.",
                 ),
                 (
                     "human",
@@ -755,7 +837,8 @@ def respond_node(state: AgentState) -> AgentState:
         ):
             text = (
                 f"The {matched['name']} in {order['order_id']} has a "
-                f"{matched['warranty_period']} warranty and a {matched['return_policy']} "
+                f"{_attributive_duration(matched['warranty_period'])} warranty and a "
+                f"{_attributive_duration(matched['return_policy'])} "
                 "return window."
             )
         else:
@@ -906,6 +989,7 @@ class SupportSession:
         if not customer:
             raise ValueError(f"Unknown demo customer: {customer_id}")
         self.conversation_id = str(uuid.uuid4())
+        self.schema_version = SESSION_SCHEMA_VERSION
         self.customer_id = customer_id
         self.customer_name = customer["name"]
         self.mode = mode
@@ -983,6 +1067,7 @@ class SupportSession:
     def context(self) -> dict[str, Any]:
         return {
             "conversation_id": self.conversation_id,
+            "schema_version": self.schema_version,
             "customer_id": self.customer_id,
             "customer_name": self.customer_name,
             "active_order_id": self.active_order_id,
