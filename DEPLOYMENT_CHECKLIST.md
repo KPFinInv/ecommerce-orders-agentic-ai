@@ -10,7 +10,7 @@
 - [ ] `.streamlit/config.toml` is committed.
 - [ ] `.streamlit/secrets.toml` is not committed.
 - [ ] `.gitignore` excludes secrets and local environments.
-- [ ] `pytest` reports eleven passing tests locally.
+- [ ] `pytest` reports twelve passing tests locally.
 - [ ] `streamlit run app.py` starts from repository root.
 
 ## GitHub
@@ -30,6 +30,7 @@
 - [ ] Add `GROQ_API_KEY` and `GROQ_MODEL = "openai/gpt-oss-20b"` only in the Secrets field.
 - [ ] Add OpenAI values only if the optional paid OpenAI API path is also required.
 - [ ] Deploy and inspect build logs.
+- [ ] Run Bob Smith's eight-turn journey in LLM mode, including one validated provider-fallback run.
 - [ ] Run the six-turn clarification-continuation journey, ambiguity, authorization-failure, cancellation-handoff, and guardrail prompts on the public URL.
 - [ ] Submit one customer rating and confirm the Quality tab updates.
 
