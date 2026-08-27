@@ -24,7 +24,7 @@ Learners should leave able to explain an agent as a controlled state, routing, t
 
 * Use Python 3.11 or 3.12.
 * Install `requirements.txt` at least one day before the webinar.
-* Run `pytest` and confirm eleven passing tests.
+* Run `pytest` and confirm twelve passing tests.
 * Run every notebook cell from a fresh kernel.
 * Run `streamlit run app.py` from repository root.
 * Verify that the architecture SVG renders in the notebook and Streamlit.
@@ -50,15 +50,24 @@ Select **Alice Johnson, customer 1** once, then ask:
 
 Expected interpretation: turn one stores `product_help` as the unfinished task and asks only for the missing order. The bare order number in turn two completes that original product request. The graph then retains ORD1009 and Smartwatch X as typed context across warranty, tracking, delivery, and return questions. Authorization still runs on every retrieval.
 
-### 2. Latest-order memory
+### 2. Eight-turn Bob Smith LLM and fallback journey
 
-Select **Bob Smith, customer 2** once, then ask:
+Select **Bob Smith, customer 2** once, choose **Free LLM assisted: GPT OSS 20B**, then ask:
 
 1. `Where is my latest order?`
-2. `What products are in it?`
-3. `Can I return the blender?`
+2. `Could you remind me what came in that parcel?`
+3. `How long is the 4K monitor covered?`
+4. `And how long is the blender covered?`
+5. `Could I send that one back?`
+6. `And when should the parcel get here?`
+7. `Actually, can you stop this order before it ships?`
+8. `That's all, thanks.`
 
-Expected interpretation: the graph resolves ORD1003 on turn one and retains it as the active order. The later turns change intent but not customer scope or active order. Return policy uses the matched Portable Blender record and ends in human confirmation.
+Expected interpretation: the graph resolves ORD1003 on turn one and retains it as the active
+order. It changes product context from the 4K monitor to the Portable Blender, resolves “that
+one” to the blender, applies the 14-day return policy, declines to invent a delivery date, and
+prepares cancellation only for human approval. If Groq is unavailable, the governed fallback
+must produce the same intents and grounded response path; this is a release-gated scenario.
 
 ### 3. Ambiguity
 
