@@ -2,7 +2,7 @@
 
 This is a teaching-grade, GitHub-ready case study for a 90-minute data science webinar. It demonstrates a multi-turn LangGraph support agent over a small SQLite database, an inspectable quality framework, and deployment on Streamlit Community Cloud.
 
-## What is materially different in version 2.2
+## What is materially different in version 2.3
 
 The customer selects a simulated identity once, then asks natural follow-up questions without repeating customer ID or order ID. The agent retains an active-order reference, resolves phrases such as “it,” asks for missing context when several orders are plausible, and verifies ownership before private data enters graph state.
 
@@ -74,13 +74,22 @@ The complete deterministic experience works without an API key.
 
 ## Recommended conversation demo
 
-Select **Bob Smith, customer 2** once in the sidebar, then ask:
+Select **Bob Smith, customer 2** once in the sidebar, choose the free LLM-assisted
+mode, and run the complete release-tested conversation:
 
 1. `Where is my latest order?`
-2. `What products are in it?`
-3. `Can I return the blender?`
+2. `Could you remind me what came in that parcel?`
+3. `How long is the 4K monitor covered?`
+4. `And how long is the blender covered?`
+5. `Could I send that one back?`
+6. `And when should the parcel get here?`
+7. `Actually, can you stop this order before it ships?`
+8. `That's all, thanks.`
 
-This demonstrates latest-order resolution, conversation memory, product grounding, and policy handoff without repeating identifiers.
+This demonstrates latest-order resolution, flexible language, order and product memory,
+product grounding, return policy, honest evidence gaps, cancellation handoff, and closure
+without repeating identifiers. The same routing and grounded responses are preserved by the
+governed fallback if the external provider is unavailable.
 
 ### Six-turn clarification-continuation demo
 
@@ -152,7 +161,7 @@ pytest
 python -m compileall app.py kartify_agent tests
 ```
 
-The current suite contains eleven tests covering multi-turn memory, clarification continuation, natural status requests, cross-customer privacy, unsafe writes, ambiguity, cancellation handoff, feedback analytics, the labelled benchmark, structured LLM routing, and deterministic provider fallback.
+The current suite contains twelve tests covering multi-turn memory, clarification continuation, natural status requests, cross-customer privacy, unsafe writes, ambiguity, cancellation handoff, feedback analytics, the labelled benchmark, structured LLM routing, deterministic provider fallback, and Bob Smith's complete eight-turn webinar journey during provider authentication failure.
 
 ## Production boundary
 
