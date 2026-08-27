@@ -2,11 +2,23 @@
 
 This is a teaching-grade, GitHub-ready case study for a 90-minute data science webinar. It demonstrates a multi-turn LangGraph support agent over a small SQLite database, an inspectable quality framework, and deployment on Streamlit Community Cloud.
 
-## What is materially different in version 2.3
+## Start here
+
+Students should use the repository in this order:
+
+1. Read this `README.md`.
+2. Run the guided notebook: `E-commerce_Orders_Agentic_AI_Webinar.ipynb`.
+3. Run the application locally with `streamlit run app.py`.
+4. Read `DEPLOYMENT_CHECKLIST.md` before deploying a fork to Streamlit Community Cloud.
+
+Only the current version 2.3 implementation is kept in the repository. The live application
+starts from `app.py`, while reusable agent logic lives in `kartify_agent/`.
+
+## Current release: version 2.3
 
 The customer selects a simulated identity once, then asks natural follow-up questions without repeating customer ID or order ID. The agent retains an active-order reference, resolves phrases such as “it,” asks for missing context when several orders are plausible, and verifies ownership before private data enters graph state.
 
-Version 2.1 also retains the **unfinished task behind a clarification**. If a customer asks which products are in an unspecified order, the agent lists safe candidate orders. A reply containing only `ORD1009` resumes the original product request instead of incorrectly switching to order status. The selected order and product context then remain relevant across later warranty, tracking, delivery, return, and cancellation questions.
+The current release also retains the **unfinished task behind a clarification**. If a customer asks which products are in an unspecified order, the agent lists safe candidate orders. A reply containing only `ORD1009` resumes the original product request instead of incorrectly switching to order status. The selected order and product context then remain relevant across later warranty, tracking, delivery, return, and cancellation questions.
 
 The case study also includes:
 
@@ -30,13 +42,16 @@ The case study also includes:
 
 ```text
 .
+├── .devcontainer/devcontainer.json
+├── .streamlit/
+│   ├── config.toml
+│   └── secrets.toml.example
 ├── app.py
 ├── E-commerce_Orders_Agentic_AI_Webinar.ipynb
-├── assets/
-│   ├── agent_architecture.svg
-│   └── agent_architecture.png
+├── assets/agent_architecture.svg
 ├── data/orders.db
 ├── kartify_agent/
+│   ├── __init__.py
 │   ├── agent.py
 │   ├── evaluation.py
 │   ├── feedback.py
@@ -44,14 +59,14 @@ The case study also includes:
 │   ├── notebook_support.py
 │   └── repository.py
 ├── tests/test_chatbot.py
+├── DEPLOYMENT_CHECKLIST.md
+├── FACILITATOR_GUIDE.md
+├── RELEASE_NOTES_v2.3.md
 ├── pyproject.toml
-├── requirements.txt
-└── .streamlit/
-    ├── config.toml
-    └── secrets.toml.example
+└── requirements.txt
 ```
 
-The notebook imports the package instead of duplicating implementation code. This keeps the learning flow readable while the production logic remains reusable and testable.
+The notebook imports the package instead of duplicating implementation code. This keeps the learning flow readable while the production logic remains reusable and testable. The `.devcontainer` file supports GitHub Codespaces; students using a normal local clone may ignore it.
 
 ## Run locally
 
