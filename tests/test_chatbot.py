@@ -38,7 +38,7 @@ def test_clarification_selection_continues_original_task_for_six_turns():
     assert selection["intent"] == "product_help"
     assert selection["active_order_id"] == "ORD1009"
     assert "Smartwatch X" in selection["response"]
-    assert "1 year warranty" in warranty["response"]
+    assert "1-year warranty" in warranty["response"]
     assert status["intent"] == "order_status"
     assert delivery["active_order_id"] == "ORD1009"
     assert returned["intent"] == "return_help"
@@ -119,6 +119,55 @@ def test_free_llm_mode_falls_back_safely_without_credentials(monkeypatch):
     assert result["understanding_provider"] == "deterministic"
     assert result["understanding_fallback"] is True
     assert result["understanding_failure"] == "credentials_unavailable"
+
+
+def test_bob_eight_turn_webinar_script_survives_provider_authentication_failure(monkeypatch):
+    def unavailable_provider(*args, **kwargs):
+        return None, {
+            "provider": "GroqCloud",
+            "model": "openai/gpt-oss-20b",
+            "fallback": True,
+            "failure": "authentication",
+        }
+
+    monkeypatch.setattr(agent_module, "_llm_classification", unavailable_provider)
+    session = SupportSession(2, mode=GROQ_MODE)
+    prompts = [
+        "Where is my latest order?",
+        "Could you remind me what came in that parcel?",
+        "How long is the 4K monitor covered?",
+        "And how long is the blender covered?",
+        "Could I send that one back?",
+        "And when should the parcel get here?",
+        "Actually, can you stop this order before it ships?",
+        "That's all, thanks.",
+    ]
+    results = [session.ask(prompt) for prompt in prompts]
+
+    assert [result["intent"] for result in results] == [
+        "order_status",
+        "product_help",
+        "product_help",
+        "product_help",
+        "return_help",
+        "order_status",
+        "cancel_request",
+        "end_conversation",
+    ]
+    assert all(
+        result["active_order_id"] == "ORD1003" for result in results[:7]
+    )
+    assert "4K Monitor 27\" × 1" in results[1]["response"]
+    assert "3-year warranty" in results[2]["response"]
+    assert "6-month warranty" in results[3]["response"]
+    assert results[3]["active_product_name"] == "Portable Blender"
+    assert "65 days old" in results[4]["response"]
+    assert "14 days" in results[4]["response"]
+    assert "will not invent one" in results[5]["response"]
+    assert results[6]["outcome"] == "human_handoff"
+    assert results[6]["write_executed"] is False
+    assert "I have not changed the order" in results[6]["response"]
+    assert results[7]["outcome"] == "ended"
 
 
 def test_free_llm_classification_expands_language_without_weakening_controls(monkeypatch):
