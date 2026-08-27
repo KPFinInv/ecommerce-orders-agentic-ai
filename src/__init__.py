@@ -1,1 +1,0 @@
-"""Kartify chatbot application modules."""
