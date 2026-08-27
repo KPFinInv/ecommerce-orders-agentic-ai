@@ -12,6 +12,7 @@ from kartify_agent import (
     DETERMINISTIC_MODE,
     GROQ_MODE,
     OPENAI_MODE,
+    SESSION_SCHEMA_VERSION,
     FeedbackStore,
     SupportSession,
     available_understanding_modes,
@@ -71,7 +72,10 @@ with st.sidebar:
     modes = available_understanding_modes()
     selected_mode = st.radio("Understanding mode", modes)
     if selected_mode == GROQ_MODE:
-        st.success("Configured: GroqCloud is using OpenAI GPT OSS 20B with safe fallback.")
+        st.success(
+            "Groq key detected: GPT OSS 20B will be used when provider authentication "
+            "succeeds; the governed conversation fallback remains active."
+        )
     elif selected_mode == OPENAI_MODE:
         st.success("Configured: OpenAI assisted understanding is available with safe fallback.")
     else:
@@ -89,11 +93,15 @@ elif (
 
 session: SupportSession = st.session_state.agent_session
 required_session_fields = (
+    "schema_version",
     "pending_intent",
     "pending_candidate_order_ids",
     "active_product_name",
 )
-if not all(hasattr(session, field) for field in required_session_fields):
+if (
+    not all(hasattr(session, field) for field in required_session_fields)
+    or session.schema_version != SESSION_SCHEMA_VERSION
+):
     # Streamlit can preserve an object created by an earlier deployed class definition.
     # Rebuild the demo session when its state schema changes so existing browser tabs recover.
     new_conversation(selected_customer, selected_mode)
@@ -127,15 +135,44 @@ with chat_tab:
         "customer, active-order, product, and clarification context will carry forward."
     )
     prompt_columns = st.columns(4)
-    sample_prompts = [
-        "Where is my latest order?",
-        "What exactly came in that parcel?",
-        "Is the watch still covered?",
-        "Could I send it back if I changed my mind?",
-    ]
+    prompt_sets = {
+        2: [
+            "Where is my latest order?",
+            "Could you remind me what came in that parcel?",
+            "How long is the 4K monitor covered?",
+            "Could I send that one back?",
+        ]
+    }
+    sample_prompts = prompt_sets.get(
+        session.customer_id,
+        [
+            "Where is my latest order?",
+            "What exactly came in that parcel?",
+            "Is the watch still covered?",
+            "Could I send it back if I changed my mind?",
+        ],
+    )
     for column, sample in zip(prompt_columns, sample_prompts):
         if column.button(sample, width="stretch"):
             st.session_state.queued_prompt = sample
+
+    if session.customer_id == 2:
+        with st.expander("Bob Smith · eight-turn webinar script"):
+            st.markdown(
+                """
+1. `Where is my latest order?`
+2. `Could you remind me what came in that parcel?`
+3. `How long is the 4K monitor covered?`
+4. `And how long is the blender covered?`
+5. `Could I send that one back?`
+6. `And when should the parcel get here?`
+7. `Actually, can you stop this order before it ships?`
+8. `That's all, thanks.`
+
+The governed fallback is release-tested to preserve the same intent, order, product,
+policy, and response path if the external language-model service is unavailable.
+"""
+            )
 
     for message in st.session_state.messages:
         avatar = "🧑" if message["role"] == "user" else "🛡️"
@@ -159,9 +196,20 @@ with chat_tab:
     result = st.session_state.last_result
     if result:
         if result.get("understanding_fallback"):
+            failure_labels = {
+                "authentication": "provider authentication failed",
+                "rate_limit": "the provider rate limit was reached",
+                "timeout": "the provider timed out",
+                "connection": "the provider could not be reached",
+                "credentials_unavailable": "provider credentials were unavailable",
+                "provider_error": "the provider rejected the request",
+            }
+            failure = failure_labels.get(
+                result.get("understanding_failure"), "the provider was unavailable"
+            )
             st.warning(
-                "The language-model request was unavailable for this turn. The governed "
-                "deterministic classifier completed the request, so the conversation continued."
+                f"The language-model request used fallback because {failure}. The governed "
+                "classifier preserved the same customer, order, product, policy, and response path."
             )
         st.subheader("Why the agent answered this way")
         trace_view, state_view, evidence_view = st.tabs(
